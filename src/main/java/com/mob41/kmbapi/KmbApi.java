@@ -594,12 +594,12 @@ public class KmbApi {
 	}
 	
 	/***
-	 * <b>Get all the buses in List<String[]> according the bus-stop code</b><br>
+	 * <b>Get all the buses in List according the bus-stop code</b><br>
 	 * <b>!!WARNING!!</b> This only works if the external database is loaded.<br>
 	 * <br> 
 	 * Returns a list with nothing if no buses match the bus-stop code
 	 * @param stopcode The Bus-Stop code
-	 * @return List<String[]>
+	 * @return List
 	 */
 	public static List<String[]> getStopBuses(String stopcode){
 		String[] data;
