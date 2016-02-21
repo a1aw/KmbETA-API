@@ -1,7 +1,7 @@
-## KmbETA-API
+# KmbETA-API
 A API client for getting KMB bus's ETA
 
-## Tutorial
+# Tutorial
 You can get ETA data from KMB using:
 ```
 import com.mob41.kmbapi.KmbApi;
@@ -19,7 +19,7 @@ public static void main(String[] args){
     System.out.println("Remaining Time: " + KmbApi.getRemainingFormattedTime());
 }
 ```
-# Bus database
+## Bus database
 As KMB doesn't give out the bus database, you have to build it yourself.
 Download "KMB Database Builder" from the release.
 
