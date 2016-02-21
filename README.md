@@ -1,5 +1,8 @@
 # KmbETA-API
-A API client for getting KMB bus's ETA
+A API client for getting KMB bus's ETA.
+
+Requires: JSON
+JavaDoc: [http://mob41.github.io/KmbETA-API](http://mob41.github.io/KmbETA-API)
 
 # Tutorial
 You can get ETA data from KMB using:
