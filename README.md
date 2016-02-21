@@ -1,7 +1,10 @@
 # KmbETA-API
 A API client for getting KMB bus's ETA.
 
+[Pre-release (0.0.1-SNAPSHOT)](https://github.com/mob41/KmbETA-API/releases/tag/0.0.1-SNAPSHOT)
+
 Requires: JSON
+
 JavaDoc: [http://mob41.github.io/KmbETA-API](http://mob41.github.io/KmbETA-API)
 
 # Tutorial
