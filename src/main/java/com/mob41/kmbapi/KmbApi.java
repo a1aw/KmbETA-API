@@ -21,15 +21,15 @@ import org.json.JSONObject;
 
 public class KmbApi {
 	
-	public static JSONObject data = null;
-	public static String stime = null;
+	private static JSONObject data = null;
+	private static String stime = null;
 	
 	public static final int NO_DATA = -1; 
 	
-	public static final String etaserver = "http://etav2.kmb.hk/";
-	public static final String etadatafeed = "http://etadatafeed.kmb.hk:1933/";
+	private static final String etaserver = "http://etav2.kmb.hk/";
+	private static final String etadatafeed = "http://etadatafeed.kmb.hk:1933/";
 	
-	public static String[] bus_db = {//, "15P"
+	private static String[] bus_db = {//, "15P"
 			"1", "1A", "10", "11", "11B", "11C", "11D", "11K", "11X", "12", "12A",
 			"13D", "13M", "13P", "13S", "13X", "14", "14B", "14D", "14X", "15", "15A", "15X",
 			"16", "16M", "16X", "17", "18", "108",  "2", "2A", "2B", "2D", "2E", "2F", "2X",
@@ -76,17 +76,30 @@ public class KmbApi {
 	 * 
 	 */
 	private static List<String[]> busstop_pair = new ArrayList<String[]>(bus_db.length);
-	public static final String lastdeparted_msg = "The last bus has departed from this bus stop";
+	private static final String lastdeparted_msg = "The last bus has departed from this bus stop";
 	
 	public static final int ENGLISH_LANG = 0;
 	public static final int CHINESE_LANG = 1;
 	
 	//Must load database
+	/***
+	 * Load database from file-system<br>
+	 * <br>
+	 * <b>Must be called before any database reading events.</b>
+	 * @return Boolean
+	 */
 	public static boolean loadDatabase(){
-		return loadDatabase(true);
+		return loadDatabase(false);
 	}
 	
-	public static boolean loadDatabase(boolean fromClassResources){
+	/***
+	 * Load database from class-path or file-system<br>
+	 * <br>
+	 * <b>Must be called before any database reading events.</b>
+	 * @param fromClassResources Load from Class-path
+	 * @return Boolean
+	 */
+	private static boolean loadDatabase(boolean fromClassResources){
 		try {
 			File file;
 			Properties prop = new Properties();
@@ -136,7 +149,18 @@ public class KmbApi {
 		}
 	}
 	
-	public static JSONObject etaJsonData(String route, String busStopCode, int lang, int bound, int stop_seq)
+	/***
+	 * Get ETA data from KMB server. And save to memory for other functions.<br>
+	 * <br>
+	 * <b>Must be called before any ETA reading events</b>
+	 * @param route The bus number / route name / bus name
+	 * @param busStopCode The bus-stop code
+	 * @param lang Language to be received. KmbApi.ENGLISH_LANG / KmbApi.CHINESE_LANG
+	 * @param bound Bus-Line Bound
+	 * @param stop_seq Bus-stop sequence
+	 * @return JSONObject
+	 */
+	public static JSONObject getETAdata(String route, String busStopCode, int lang, int bound, int stop_seq)
 	{
 		try {
 			String language;
@@ -168,6 +192,14 @@ public class KmbApi {
 		}
 	}
 	
+	/***
+	 * Get KMB data feed server time. And save to memory for other functions<br>
+	 * <br>
+	 * <b>Must be called before any arrival calculating events.</b>
+	 * <br>
+	 * e.g. 23:45:33
+	 * @return String
+	 */
 	public static String getServerTime(){
 		try {
 			String kmbApi = etadatafeed + "GetData.ashx?type=Server_T";
@@ -188,7 +220,19 @@ public class KmbApi {
 		}
 	}
 	
-	//Call getServerTime() before this.
+	/***
+	 * Divide server time to 3 parts (Hour, Min, Seconds)<br>
+	 * Get server time hours.<br>
+	 * <br>
+	 * Load the Server Time data first by using <b>getServerTime()</b> Or 
+	 * <b>outdated</b> time <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * <br>
+	 * Returns -1 if the server time is <b>null</b>
+	 * 
+	 * @return Integer
+	 */
 	public static int getServerHour(){
 		if (stime == null){
 			return -1;
@@ -197,6 +241,19 @@ public class KmbApi {
 		return hour;
 	}
 	
+	/***
+	 * Divide server time to 3 parts (Hour, Min, Seconds)<br>
+	 * Get server time hour.<br>
+	 * <br>
+	 * Load the Server Time data first by using <b>getServerTime()</b> Or 
+	 * <b>outdated</b> time <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * <br>
+	 * Returns -1 if the server time is <b>null</b>
+	 * 
+	 * @return Integer
+	 */
 	public static int getServerMin(){
 		if (stime == null){
 			return -1;
@@ -205,14 +262,47 @@ public class KmbApi {
 		return min;
 	}
 	
+	/***
+	 * Divide server time to 3 parts (Hour, Min, Seconds)<br>
+	 * Get server time seconds.<br>
+	 * <br>
+	 * Load the Server Time data first by using <b>getServerTime()</b> Or 
+	 * <b>outdated</b> time <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * <br>
+	 * Returns -1 if the server time is <b>null</b>
+	 * 
+	 * @return Integer
+	 */
 	public static int getServerSec(){
 		if (stime == null){
 			return -1;
 		}
+		//TODO Unstable substring!
 		int sec = Integer.parseInt(stime.substring(16, 18));
 		return sec;
 	}
 	
+	/***
+	 * Calculates and formats the remaining arrival time left.<br>
+	 * <br>
+	 * Load the ETA data first by using <b>getETAdata()</b> Or 
+	 * <b>outdated</b> data <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * Load the Server Time data first by using <b>getServerTime()</b> Or 
+	 * <b>outdated</b> time <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * <br>
+	 * Returns "INVAILD" if the arrival time is null or ETA data not <br>
+	 * accessible. <br>
+	 * Returns "Arrived" if the bus is arrived / arrivial time is equal <br>
+	 *  to the server time.
+	 * 
+	 * @return String
+	 */
 	public static String getRemainingFormattedTime(){
 		int serverhr = getServerHour();
 		int servermin = getServerMin();
@@ -221,7 +311,7 @@ public class KmbApi {
 		int outputmin = 0;
 		
 		if (serverhr == -1 || servermin == -1 || arrhr == -1 || arrmin == -1){
-			return "---";
+			return "INVAILD";
 		}
 		
 		if (arrhr > serverhr){
@@ -241,6 +331,20 @@ public class KmbApi {
 		return output;
 	}
 	
+	/***
+	 * Calculates the remaining arrival minutes left.<br>
+	 * <br>
+	 * Load the ETA data first by using <b>getETAdata()</b> Or 
+	 * <b>outdated</b> data <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * Load the Server Time data first by using <b>getServerTime()</b> Or 
+	 * <b>outdated</b> time <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * 
+	 * @return Integer
+	 */
 	public static int getRemainingMin(){
 		int serverhr = getServerHour();
 		int servermin = getServerMin();
@@ -262,6 +366,11 @@ public class KmbApi {
 		return outputmin;
 	}
 	
+	/***
+	 * Returns whether the specified arrival time is a scheduled time.
+	 * @param i The index of arrival times. See the KMB App for details.
+	 * @return Boolean
+	 */
 	public static boolean isScheTime(int i){
 		if (data == null){
 			return true;
@@ -274,10 +383,31 @@ public class KmbApi {
 		return isScheTime;
 	}
 	
+	/***
+	 * Returns whether the latest arrival time is a scheduled time.
+	 * @return Boolean
+	 */
 	public static boolean isScheTime(){
 		return isScheTime(0);
 	}
 	
+	/***
+	 * <b>Get the specified Arrival Time of the ETA Data Loaded</b><br>
+	 * <br>
+	 * Load the ETA data first by using <b>getETAdata()</b> Or 
+	 * <b>outdated</b> data <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * Load the Server Time data first by using <b>getServerTime()</b> Or 
+	 * <b>outdated</b> time <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * <br>
+	 * Returns <b>null</b> if the arrival time is null or ETA data not <br>
+	 * accessible
+	 * @param i The index of arrival times. See the KMB App for details.
+	 * @return String
+	 */
 	public static String getArrivalTime(int i){
 		if (data == null){
 			return null;
@@ -287,10 +417,42 @@ public class KmbApi {
 		return output;
 	}
 	
+	/***
+	 * <b>Get the latest Arrival Time of the ETA Data Loaded</b><br>
+	 * <br>
+	 * Load the ETA data first by using <b>getETAdata()</b> Or 
+	 * <b>outdated</b> data <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * Load the Server Time data first by using <b>getServerTime()</b> Or 
+	 * <b>outdated</b> time <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * <br>
+	 * Returns <b>null</b> if the arrival time is null or ETA data not <br>
+	 * accessible
+	 * @return String
+	 */
 	public static String getArrivalTime(){
 		return getArrivalTime(0);
 	}
 	
+	/***
+	 * <b>Get Arrival Hour of the ETA Data Loaded</b><br>
+	 * <br>
+	 * Load the ETA data first by using <b>getETAdata()</b> Or 
+	 * <b>outdated</b> data <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * Load the Server Time data first by using <b>getServerTime()</b> Or 
+	 * <b>outdated</b> time <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * <br>
+	 * Returns KmbApi.NO_DATA if the arrival time is null or ETA data not <br>
+	 * accessible
+	 * @return Integer
+	 */
 	public static int getArrivalHour(){
 		String arrivaltime = getArrivalTime(0);
 		if (arrivaltime == null){
@@ -305,11 +467,27 @@ public class KmbApi {
 		try {
 			output = Integer.parseInt(preoutput);
 		} catch (NumberFormatException e){
-			output = -1;
+			output = NO_DATA;
 		}
 		return output;
 	}
 	
+	/***
+	 * <b>Get Arrival Minute of the ETA Data Loaded</b><br>
+	 * <br>
+	 * Load the ETA data first by using <b>getETAdata()</b> Or 
+	 * <b>outdated</b> data <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * Load the Server Time data first by using <b>getServerTime()</b> Or 
+	 * <b>outdated</b> time <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * <br>
+	 * Returns KmbApi.NO_DATA if the arrival time is null or ETA data not <br>
+	 * accessible
+	 * @return Integer
+	 */
 	public static int getArrivalMin(){
 		String arrivaltime = getArrivalTime(0);
 		if (arrivaltime == null){
@@ -324,11 +502,28 @@ public class KmbApi {
 		try {
 			output = Integer.parseInt(preoutput);
 		} catch (NumberFormatException e){
-			output = -1;
+			output = NO_DATA;
 		}
 		return output;
 	}
 	
+	/***
+	 * <b>Get a formatted arrival time of the ETA Data Loaded</b><br>
+	 * <br>
+	 * Load the ETA data first by using <b>getETAdata()</b> Or 
+	 * <b>outdated</b> data <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * Load the Server Time data first by using <b>getServerTime()</b> Or 
+	 * <b>outdated</b> time <br> or <b>java.lang.NullPointerException</b>
+	 * might happen.
+	 * <br>
+	 * <br>
+	 * May returns a response with <br>
+	 * <b>Data Error</b>, <b>STime Error</b>, <b>END</b>, <b>INVAILD</b>
+	 * 
+	 * @return String
+	 */
 	public static String getFormattedTimeDefined(){
 		int hr;
 		int min;
@@ -347,14 +542,15 @@ public class KmbApi {
 			min = KmbApi.getArrivalMin();
 		}
 		if (hr == -1 || min == -1){
-			return "---";
+			return "INVAILD";
 		}
 		String hour = hr < 10 ? "0" + hr : Integer.toString(hr);
 		String minute = min < 10 ? "0" + min : Integer.toString(min);
 		String output = hour + ":" + minute;
 		return output;
 	}
-	/*
+	
+	/* 
 	public static String[] getFormattedTableData(int bus_index, int stop_index){
 		String[] tabledata = new String[4];
 		
@@ -377,6 +573,15 @@ public class KmbApi {
 	}
 	*/
 	
+	/***
+	 * <b>Get the bus-stop sequence of the route with the bus-stop code</b><br>
+	 * <b>!!WARNING!!</b> This only works if the external database is loaded.<br>
+	 * <br>
+	 * Returns -1 if the route or the bus-stop code do not exist.
+	 * @param route The Bus-Stop Number/Name
+	 * @param stopcode The Bus-Stop code
+	 * @return Integer
+	 */
 	public static int getStopSeq(String route, String stopcode){
 		String[] data;
 		for (int i = 0; i < busstop_pair.toArray().length; i++){
@@ -388,6 +593,14 @@ public class KmbApi {
 		return -1;
 	}
 	
+	/***
+	 * <b>Get all the buses in List<String[]> according the bus-stop code</b><br>
+	 * <b>!!WARNING!!</b> This only works if the external database is loaded.<br>
+	 * <br> 
+	 * Returns a list with nothing if no buses match the bus-stop code
+	 * @param stopcode The Bus-Stop code
+	 * @return List<String[]>
+	 */
 	public static List<String[]> getStopBuses(String stopcode){
 		String[] data;
 		List<String[]> output = new ArrayList<String[]>(busstop_pair.size());
@@ -400,110 +613,29 @@ public class KmbApi {
 		return output;
 	}
 	
-	public static List<String[]> getAllETAtableData(int lang, String stopcode){
-		String[] data;
-		String[] build;
-		List<String[]> stopbuses = getStopBuses(stopcode);
-		List<String[]> output = new ArrayList<String[]>(stopbuses.size() + 1);
-		for (int i = 0; i < stopbuses.size(); i++){
-			build = new String[4];
-			data = stopbuses.get(i);
-			JSONObject etajson = etaJsonData(data[0], stopcode, lang, Integer.parseInt(data[1]), getStopSeq(data[0], stopcode));
-			if (etajson == null){
-				build[0] = data[0];
-				build[1] = "---";
-				build[2] = "---";
-				build[3] = "---";
-				output.add(build);
-				continue;
-			}
-			try {
-				etajson.getJSONArray("response");
-			} catch (JSONException e){
-				build[0] = data[0];
-				build[1] = "---";
-				build[2] = "---";
-				build[3] = "---";
-				output.add(build);
-				continue;
-			}
-			build[0] = data[0];
-			build[1] = data[4];
-			build[2] = getFormattedTimeDefined();
-			build[3] = getArrivalTime().equals(lastdeparted_msg) ? "END" : getRemainingFormattedTime();
-			output.add(build);
-		}
-		return output;
-	}
-	
-	private static List<String[]> sortArray(String[] build, List<String[]> list){
-		List<String[]> output = new ArrayList<String[]>(list.size() + 1);
-		String[] input1;
-		String[] input2;
-		String strarrive1;
-		String strarrive2;
-		int arrive1;
-		int arrive2;
-		for (int i = 0; i < list.size(); i++){
-			input1 = list.get(i);
-			input2 = list.get(i + 1);
-			strarrive1 = input1[3].replaceAll("[^0-9]", "");
-			strarrive2 = input2[3].replaceAll("[^0-9]", "");
-			try {
-				arrive1 = Integer.parseInt(strarrive1);
-			} catch (NumberFormatException e){
-				arrive1 = -1;
-			}
-			try {
-				arrive2 = Integer.parseInt(strarrive2);
-			} catch (NumberFormatException e){
-				arrive2 = -1;
-			}
-			if (arrive1 > arrive2){
-				output.add(i, input1);
-				output.add(i + 1, input2);
-			} else {
-				output.add(i, input2);
-				output.add(i + 1, input1);
-			}
-		}
-		list.add(build);
-		for (int i = 0; i < output.size(); i++){
-			input1 = list.get(i);
-			input2 = list.get(i + 1);
-			strarrive1 = input1[3].replaceAll("[^0-9]", "");
-			strarrive2 = input2[3].replaceAll("[^0-9]", "");
-			try {
-				arrive1 = Integer.parseInt(strarrive1);
-			} catch (NumberFormatException e){
-				arrive1 = -1;
-			}
-			try {
-				arrive2 = Integer.parseInt(strarrive2);
-			} catch (NumberFormatException e){
-				arrive2 = -1;
-			}
-			if (arrive1 > arrive2){
-				output.add(i, input1);
-				output.add(i + 1, input2);
-			} else {
-				output.add(i, input2);
-				output.add(i + 1, input1);
-			}
-		}
-		return output;
-	}
-	
+	/***
+	 * <b>Get the array index of the bus number.</b><br>
+	 * If it does exist, returns the array index<br>
+	 * If it does not exist, returns -1
+	 * 
+	 * @param busno The bus name to be requested
+	 * @return Integer
+	 */
 	public static int getBusArrayIndex(String busno){
 		int i;
 		for (i = 0; i < bus_db.length; i++){
 			if (bus_db[i] == busno){
-				break;
+				return i;
 			}
 		}
-		return i;
+		return -1;
 	}
 	
+	/***
+	 * Ask is the bus name specified in the parameter exists.
+	 * @param busno The bus name to be requested
+	 * @return Boolean
+	 */
 	public static boolean isBusExistInDB(String busno){
 		for (int i = 0; i < bus_db.length; i++){
 			if (bus_db[i] == busno){
@@ -512,6 +644,12 @@ public class KmbApi {
 		}
 		return false;
 	}
+	
+	/*
+	 * Future plan: Automatic database builder
+	 * 
+	 */
+	
 	
 	/*
 	public static int getStopsArrayIndex(String name_stops){
