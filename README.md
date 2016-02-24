@@ -32,7 +32,8 @@ As KMB doesn't give out the bus database, you have to build it yourself.
 Download "KMB Database Builder" from the release.
 [KMB ETA DB Builder (Auto/Manual) (Beta v.1.5)](https://github.com/mob41/KmbETA-DBBuilder/releases)
 
-Outdated information. Automatic builder is built and available for download.
+<b>Outdated information. Automatic builder is built and available for download.</b>
+
 ~~Go to the Wiki about [How to use the ETA Builder](https://github.com/mob41/KmbETA-API/wiki/How-to-use-the-ETA-Builder) to learn how to build a database.~~
 
 Put the "bus_stopdb.properties" database file next to your application.
