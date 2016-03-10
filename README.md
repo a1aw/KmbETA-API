@@ -1,4 +1,4 @@
-# KmbETA-API
+# KmbETA-API [![Build Status](https://travis-ci.org/mob41/KmbETA-API.svg?branch=master)](https://travis-ci.org/mob41/KmbETA-API)
 A API client for getting KMB bus's ETA.
 
 [Pre-release (0.0.1-SNAPSHOT)](https://github.com/mob41/KmbETA-API/releases/tag/0.0.1-SNAPSHOT)
