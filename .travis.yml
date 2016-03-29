@@ -20,7 +20,6 @@ deploy:
     - target/KmbETA-API-$projectversion.jar
     - target/KmbETA-API-$projectversion-jar-with-dependencies.jar
     - target/KmbETA-API-$projectversion-javadoc.jar
-    - jars-instruct/README.md
   on:
     tags: false
     all_branches: true
