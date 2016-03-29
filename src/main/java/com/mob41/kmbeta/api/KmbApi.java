@@ -75,7 +75,7 @@ public class KmbApi {
 	 * <-- Bus Line Name -->, <-- Line Bound -->, <-- Stop Code -->, <-- Stop Sequence -->, <-- Stop Name -->
 	 * 
 	 */
-	private static List<String[]> busstop_pair = new ArrayList<String[]>(bus_db.length);
+	private static List<List<List<String[]>>> busstop_pair = new ArrayList<List<List<String[]>>>(bus_db.length);
 	private static final String lastdeparted_msg = "The last bus has departed from this bus stop";
 	
 	public static final int ENGLISH_LANG = 0;
@@ -118,29 +118,28 @@ public class KmbApi {
 			int buses = Integer.parseInt(prop.getProperty("buses"));
 			int bounds;
 			int stops;
-			String[] data = new String[5];
+			busstop_pair.clear();
+			List<List<String[]>> bus = new ArrayList<List<String[]>>(buses);
+			List<String[]> bound;
+			String[] stop;
 			for (int i = 0; i < buses; i++){
 				bounds = Integer.parseInt(prop.getProperty(bus_db[i] + "-bounds"));
+				bound = new ArrayList<String[]>(bounds);
 				for (int j = 1; j <= bounds; j++){
-					System.out.println("Bus: " + bus_db[i] + " Bound: " + j);
-					try {
-						stops = Integer.parseInt(prop.getProperty(bus_db[i] + "-bound" + j + "-stops"));
-					} catch (NullPointerException e){
-						continue;
-					}
+					stops = Integer.parseInt(prop.getProperty(bus_db[i] + "-bound" + j + "-stops"));
 					for (int s = 0; s < stops; s++){
-						data = new String[5];
-						data[0] = bus_db[i];
-						data[1] = Integer.toString(j);
-						data[2] = prop.getProperty(bus_db[i] + "-bound" + j + "-stop" + s + "-stopcode");
-						data[3] = prop.getProperty(bus_db[i] + "-bound" + j + "-stop" + s + "-stopseq");
-						data[4] = prop.getProperty(bus_db[i] + "-bound" + j + "-stop" + s + "-stopname");
-						System.out.println(Arrays.deepToString(data));
-						busstop_pair.add(data);
+						stop = new String[5];
+						stop[0] = bus_db[i];
+						stop[1] = Integer.toString(j);
+						stop[2] = prop.getProperty(bus_db[i] + "-bound" + j + "-stop" + s + "-stopcode");
+						stop[3] = prop.getProperty(bus_db[i] + "-bound" + j + "-stop" + s + "-stopseq");
+						stop[4] = prop.getProperty(bus_db[i] + "-bound" + j + "-stop" + s + "-stopname");
+						bound.add(stop);
 					}
+					bus.add(bound);
 				}
+				busstop_pair.add(bus);
 			}
-			System.out.println(Arrays.deepToString(busstop_pair.toArray()));
 			in.close();
 			return true;
 		} catch (Exception e){
@@ -375,12 +374,10 @@ public class KmbApi {
 		if (data == null){
 			return true;
 		}
+		System.out.println(data);
 		String isScheTimeString = (String) data.getJSONArray("response").getJSONObject(i).get("ei");
-		boolean isScheTime = true;
-		if (isScheTimeString.equals("N")){
-			isScheTime = false;
-		}
-		return isScheTime;
+		System.out.println(isScheTimeString);
+		return isScheTimeString.equals("Y");
 	}
 	
 	/***
@@ -582,12 +579,24 @@ public class KmbApi {
 	 * @param stopcode The Bus-Stop code
 	 * @return Integer
 	 */
-	public static int getStopSeq(String route, String stopcode){
-		String[] data;
-		for (int i = 0; i < busstop_pair.toArray().length; i++){
-			data = busstop_pair.get(i);
-			if (data[0].equals(route) && data[2].equals(stopcode)){
-				return Integer.parseInt(data[3]);
+	public static int getStopSeq(String route, int boundno, String stopcode){
+		int busindex = getBusArrayIndex(route);
+		if (busindex == -1){
+			return -1;
+		}
+		List<List<String[]>> bus;
+		List<String[]> bound;
+		String[] stop;
+		for (int i = 0; i < busstop_pair.size(); i++){
+			bus = busstop_pair.get(i);
+			for (int j = 0; j < bus.size(); j++){
+				bound = bus.get(j);
+				for (int x = 0; x < bound.size(); x++){
+					stop = bound.get(x);
+					if (stop[0].equals(route) && stop[2].equals(stopcode) && j == boundno){
+						return Integer.parseInt(stop[3]);
+					}
+				}
 			}
 		}
 		return -1;
@@ -601,13 +610,22 @@ public class KmbApi {
 	 * @param stopcode The Bus-Stop code
 	 * @return List
 	 */
-	public static List<String[]> getStopBuses(String stopcode){
+	public static List<String> getStopBuses(String stopcode){
 		String[] data;
-		List<String[]> output = new ArrayList<String[]>(busstop_pair.size());
-		for (int i = 0; i < busstop_pair.toArray().length; i++){
-			data = busstop_pair.get(i);
-			if (data[2].equals(stopcode)){
-				output.add(busstop_pair.get(i));
+		List<List<String[]>> bus;
+		List<String[]> bound;
+		String[] stop;
+		List<String> output = new ArrayList<String>(busstop_pair.size());
+		for (int i = 0; i < busstop_pair.size(); i++){
+			bus = busstop_pair.get(i);
+			for (int j = 0; j < bus.size(); j++){
+				bound = bus.get(j);
+				for (int x = 0; x < bound.size(); x++){
+					stop = bound.get(x);
+					if (stop[2].equals(stopcode)){
+						output.add(stop[0]);
+					}
+				}
 			}
 		}
 		return output;
