@@ -1,7 +1,12 @@
-# KmbETA-API
+# KmbETA-API [![Build Status](https://travis-ci.org/mob41/KmbETA-API.svg?branch=master)](https://travis-ci.org/mob41/KmbETA-API)
 A API client for getting KMB bus's ETA.
 
+[Pre-release (0.0.1-SNAPSHOT)](https://github.com/mob41/KmbETA-API/releases/tag/0.0.1-SNAPSHOT)
+
+[DB Builder (Beta v.1.5)](https://github.com/mob41/KmbETA-DBBuilder/releases)
+
 Requires: JSON
+
 JavaDoc: [http://mob41.github.io/KmbETA-API](http://mob41.github.io/KmbETA-API)
 
 # Tutorial
@@ -25,8 +30,11 @@ public static void main(String[] args){
 ## Bus database
 As KMB doesn't give out the bus database, you have to build it yourself.
 Download "KMB Database Builder" from the release.
+[KMB ETA DB Builder (Auto/Manual) (Beta v.1.5)](https://github.com/mob41/KmbETA-DBBuilder/releases)
 
---- not available until further notice ---
+<b>Outdated information. Automatic builder is built and available for download.</b>
+
+~~Go to the Wiki about [How to use the ETA Builder](https://github.com/mob41/KmbETA-API/wiki/How-to-use-the-ETA-Builder) to learn how to build a database.~~
 
 Put the "bus_stopdb.properties" database file next to your application.
 Load your database file by using:
