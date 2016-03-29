@@ -1,11 +1,13 @@
 # KmbETA-API [![Build Status](https://travis-ci.org/mob41/KmbETA-API.svg?branch=master)](https://travis-ci.org/mob41/KmbETA-API)
 A API client for getting KMB bus's ETA.
 
-[Pre-release (0.0.1-SNAPSHOT)](https://github.com/mob41/KmbETA-API/releases/tag/0.0.1-SNAPSHOT)
+[Latest API (this) Release](https://github.com/mob41/KmbETA-API/releases/latest)
 
-[DB Builder (Beta v.1.5)](https://github.com/mob41/KmbETA-DBBuilder/releases)
+[Latest DB Builder Release](https://github.com/mob41/KmbETA-DBBuilder/releases/latest)
 
-Requires: JSON
+[How to use the ETA Builder (Auto)](https://github.com/mob41/KmbETA-API/wiki/How-to-use-the-DBBuilder-(Auto-Mode))
+
+Requires: JSON (Use KmbETA-API-x.x.x-jar-with-dependencies.jar for PACKED dependencies)
 
 JavaDoc: [http://mob41.github.io/KmbETA-API](http://mob41.github.io/KmbETA-API)
 
@@ -34,7 +36,7 @@ Download "KMB Database Builder" from the release.
 
 See: [How to use the ETA Builder (Auto)](https://github.com/mob41/KmbETA-API/wiki/How-to-use-the-DBBuilder-(Auto-Mode))
 
-~~See: [How to use the ETA Builder (Manual)](https://github.com/mob41/KmbETA-API/wiki/How-to-use-the-DBBuilder-(Manual-Mode)~~
+~~See: [How to use the ETA Builder (Manual)](https://github.com/mob41/KmbETA-API/wiki/How-to-use-the-DBBuilder-(Manual-Mode))~~
 
 Put the "bus_stopdb.properties" database file next to your application.
 Load your database file by using:
