@@ -1,4 +1,4 @@
-package com.mob41.kmbapi;
+package com.mob41.kmbeta.api;
 
 import java.awt.Color;
 import java.io.BufferedReader;
@@ -29,9 +29,9 @@ public class KmbApi {
 	private static final String etaserver = "http://etav2.kmb.hk/";
 	private static final String etadatafeed = "http://etadatafeed.kmb.hk:1933/";
 	
-	private static String[] bus_db = {//, "15P"
+	public static String[] bus_db = {
 			"1", "1A", "10", "11", "11B", "11C", "11D", "11K", "11X", "12", "12A",
-			"13D", "13M", "13P", "13S", "13X", "14", "14B", "14D", "14X", "15", "15A", "15X",
+			"13D", "13M", "13P", "13S", "13X", "14", "14B", "14D", "14X", "15", "15A", "15P", "15X",
 			"16", "16M", "16X", "17", "18", "108",  "2", "2A", "2B", "2D", "2E", "2F", "2X",
 			"21", "23", "23M", "24", "26", "26M", "27", "28", "28B", "28S", "29M", "203C", "203E",
 			"203S", "208", "211", "212", "215P", "215X", "216M", "219X", "224X", "230X", "234A",
