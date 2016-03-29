@@ -22,7 +22,7 @@ deploy:
     - target/KmbETA-API-$projectversion-javadoc.jar
   on:
     tags: false
-    all_branches: true
+    branch: master
 
 env:
 - projectversion=0.0.1-SNAPSHOT
