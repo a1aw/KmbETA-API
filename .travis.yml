@@ -23,10 +23,6 @@ deploy:
   on:
     tags: false
     all_branches: true
-    
-branches:
-  only:
-    - master
 
 env:
 - projectversion=0.0.1-SNAPSHOT
