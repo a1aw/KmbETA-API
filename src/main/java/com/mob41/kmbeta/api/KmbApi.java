@@ -19,6 +19,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/***
+ * @deprecated
+ * @author Anthony
+ *
+ */
 public class KmbApi {
 	
 	private static JSONObject data = null;
