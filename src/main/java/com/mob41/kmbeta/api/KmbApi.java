@@ -31,8 +31,9 @@ public class KmbApi {
 	
 	public static final int NO_DATA = -1; 
 	
-	private static final String etaserver = "http://etav2.kmb.hk/";
-	private static final String etadatafeed = "http://etadatafeed.kmb.hk:1933/";
+	public static final String etaserver = "http://etav2.kmb.hk/";
+	
+	public static final String etadatafeed = "http://etadatafeed.kmb.hk:1933/";
 	
 	public static String[] bus_db = {
 			"1", "1A", "10", "11", "11B", "11C", "11D", "11K", "11X", "12", "12A",
