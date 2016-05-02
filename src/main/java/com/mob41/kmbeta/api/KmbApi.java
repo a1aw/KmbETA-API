@@ -582,6 +582,7 @@ public class KmbApi {
 	 * <br>
 	 * Returns -1 if the route or the bus-stop code do not exist.
 	 * @param route The Bus-Stop Number/Name
+	 * @param boundno The bound of the route
 	 * @param stopcode The Bus-Stop code
 	 * @return Integer
 	 */

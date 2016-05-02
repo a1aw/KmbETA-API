@@ -102,6 +102,7 @@ public class ArrivalManager {
 	 * @param busno Bus No.
 	 * @param stop_code Bus Stop Code (e.g. WO04N12500), probably it is specified from a BUS DB source.
 	 * @param bound Bus Direction/Bound (1 or 2)
+	 * @param language Language to be selected <code>ArrivalManager.ENGLISH_LANG</code> or <code>ArrivalManager.CHINESE_LANG</code>
 	 * @throws InvalidArrivalTargetException If the specified target arrival was invalid
 	 * @throws CouldNotLoadDatabaseException If the API could not load the database
 	 */
@@ -213,7 +214,7 @@ public class ArrivalManager {
 	 * <br>
 	 * Different cases to return another string:<br>
 	 * <b>---</b>: If <code>srvhr</code>, <code>srvmin</code>, <code>arrhr</code>, <code>arrmin</code> is -1<br>
-	 * <b>Arrived</b>: If <code>remainMin</code> <= 0
+	 * <b>Arrived</b>: If <code>remainMin</code> smaller or equal to 0
 	 * @return A String with the format mentioned above
 	 */
 	public String getArrivalTimeRemaining_Formatted(){
@@ -309,7 +310,6 @@ public class ArrivalManager {
 	 * <b>Get all the buses of this ArrivalManager's bus stop</b><br>
 	 * <br> 
 	 * Returns a list with nothing if no buses match the bus-stop code
-	 * @param stopcode The Bus-Stop code
 	 * @return List
 	 */
 	public List<String> getBusStopBuses(){
@@ -398,6 +398,7 @@ public class ArrivalManager {
 	 * It is automatically called if the database in the memory is <code>null</code>.<br>
 	 * <b>Must be called before any database reading events.</b>
 	 * @param fromClassResources Load from Class-path<br>
+	 * @param parent A class parent to be specified
 	 * If <code>true</code>, make sure the <code>bus_stopdb.properties</code> is attached in the class-path.<br>
 	 * If <code>false</code>, make sure the <code>bus_stopdb.properties</code> is inside the working directory.
 	 * @return Boolean whether the database is successfully loaded.
@@ -476,6 +477,7 @@ public class ArrivalManager {
 	 * <br>
 	 * Returns -1 if the route or the bus-stop code do not exist.
 	 * @param route The Bus-Stop Number/Name
+	 * @param boundno The Bound of the route
 	 * @param stopcode The Bus-Stop code
 	 * @return Integer
 	 */
