@@ -172,7 +172,37 @@ public class ArrivalManager {
 		return data;
 	}
 	
+//Recall
+	
+	public String getBusNo(){
+		return busno;
+	}
+	
+	public String getStopCode(){
+		return stop_code;
+	}
+	
+	public int getStopSeq(){
+		return stop_seq;
+	}
+	
+	public int getBound(){
+		return bound;
+	}
+	
+	public int getLang(){
+		return lang;
+	}
+	
 //Arrival Time Calculation
+	
+	public ServerTime getServerTime(){
+		return srvt;
+	}
+	
+	public ArrivalTime getArrivalTime(){
+		return arrt;
+	}
 	
 	/**
 	 * Get arrival time remaining<br>
@@ -195,6 +225,8 @@ public class ArrivalManager {
 		
 		if (srvhr == -1 || srvmin == -1 || arrhr == -1 || arrmin == -1){
 			return "Invalid";
+		} else if (arrhr == -3 || arrmin == -3){
+			return "End";
 		}
 		
 		if (arrhr > srvhr){
@@ -262,6 +294,8 @@ public class ArrivalManager {
 		}
 		if (hr == -1 || min == -1){
 			return "Invalid";
+		} else if (hr == -3 || min == -3){
+			return "End";
 		}
 		String hour = hr < 10 ? "0" + hr : Integer.toString(hr);
 		String minute = min < 10 ? "0" + min : Integer.toString(min);
@@ -368,14 +402,15 @@ public class ArrivalManager {
 	 * If <code>false</code>, make sure the <code>bus_stopdb.properties</code> is inside the working directory.
 	 * @return Boolean whether the database is successfully loaded.
 	 */
-	public static boolean loadDatabase(boolean fromClassResources){
+	public static boolean loadDatabase(Object parent, boolean fromClassResources){
 		try {
 			File file;
 			Properties prop = new Properties();
 			InputStream in;
 			if (fromClassResources){
 				//TODO No class resource is provided right now.
-				in = ArrivalManager.class.getClassLoader().getResourceAsStream("bus_stopdb.properties");
+				System.out.println(parent.getClass().getClassLoader().getResource("bus_stopdb.properties").getPath());
+				in = parent.getClass().getClassLoader().getResourceAsStream("bus_stopdb.properties");
 			} else
 			{
 				file = new File("bus_stopdb.properties");
@@ -393,14 +428,15 @@ public class ArrivalManager {
 			} else {
 				busstop_pair = new ArrayList<List<List<String[]>>>(BUS_NO.length);
 			}
-			List<List<String[]>> bus = new ArrayList<List<String[]>>(buses);
+			List<List<String[]>> bus;
 			List<String[]> bound;
 			String[] stop;
 			for (int i = 0; i < buses; i++){
 				bounds = Integer.parseInt(prop.getProperty(BUS_NO[i] + "-bounds"));
-				bound = new ArrayList<String[]>(bounds);
+				bus = new ArrayList<List<String[]>>(bounds);
 				for (int j = 1; j <= bounds; j++){
 					stops = Integer.parseInt(prop.getProperty(BUS_NO[i] + "-bound" + j + "-stops"));
+					bound = new ArrayList<String[]>(stops);
 					for (int s = 0; s < stops; s++){
 						stop = new String[5];
 						stop[0] = BUS_NO[i];
@@ -422,6 +458,10 @@ public class ArrivalManager {
 		}
 	}
 	
+	public static boolean loadDatabase(boolean fromClassResources){
+		return loadDatabase(null, fromClassResources);
+	}
+	
 	private static int getBusNoIndex(String bus_no){
 		for (int i = 0; i < BUS_NO.length; i++){
 			if (BUS_NO[i].equals(bus_no)){
@@ -439,7 +479,35 @@ public class ArrivalManager {
 	 * @param stopcode The Bus-Stop code
 	 * @return Integer
 	 */
-	private static int getStopSeq(String route, int boundno, String stopcode){
+	public static int getStopSeq(String route, int boundno, String stopcode){
+		
+		if (busstop_pair == null){
+			//If null, load the database in the directory
+			
+			System.out.println(
+					"ArrivalManager: Database is not loaded. Loading now...\n" +
+					"ArrivalManager: It might take a while..."
+					);
+			
+			//Save start time in ms (for calculating estimated time)
+			long startTime = System.currentTimeMillis();
+			
+			//Load Database
+			boolean loaded = loadDatabase(false);
+			
+			//Save end time in ms (for calculating estimated time)
+			long endTime = System.currentTimeMillis();
+			
+			System.out.println(
+					"ArrivalManager: " + 
+					(loaded ? "Loaded database. Took " + (endTime - startTime) + " ms to load." : "Could not load database. Check whether the DB is exist, valid or not")
+					);
+			
+			if (!loaded){
+				return -2;
+			}
+		}
+		
 		int busindex = getBusNoIndex(route);
 		if (busindex == -1){
 			System.out.println("No Bus");
@@ -463,4 +531,7 @@ public class ArrivalManager {
 		return -1;
 	}
 	
+	public static List<List<List<String[]>>> getBusStopPair(){
+		return busstop_pair;
+	}
 }
