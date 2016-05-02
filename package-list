@@ -1,1 +1,3 @@
-com.mob41.kmbapi
+com.mob41.kmbeta.api
+com.mob41.kmbeta.api.tests
+com.mob41.kmbeta.exception
