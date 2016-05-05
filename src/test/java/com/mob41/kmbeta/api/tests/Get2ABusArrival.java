@@ -14,7 +14,7 @@ public class Get2ABusArrival {
 		final String stopcode = "LO02T10000";
 		final String stopname = "LOK WAH BUS TERMINUS";
 		final int bound = 1;
-		ArrivalManager arr = new ArrivalManager(busno, stopcode, bound, ArrivalManager.ENGLISH_LANG);
+		ArrivalManager arr = new ArrivalManager(busno, stopcode, bound, ArrivalManager.ENGLISH_LANG, false);
 		arr.fetchNewData(); //This also run getServerTime()
 		System.out.println("Arrival status at " + stopname + " is " + arr.getArrivalTimeRemaining_Formatted());
 		System.out.println("Stopname: " + stopname);

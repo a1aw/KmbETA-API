@@ -96,6 +96,10 @@ public class ArrivalManager {
 	private int lang = -1;
 	
 //Init
+	
+	public ArrivalManager(String busno, String stop_code, int bound, int language) throws InvalidArrivalTargetException, CouldNotLoadDatabaseException{
+		this(busno, stop_code, bound, language, false);
+	}
 
 	/***
 	 * Creates a new <code>ArrivalManager</code> instance.
@@ -103,10 +107,11 @@ public class ArrivalManager {
 	 * @param stop_code Bus Stop Code (e.g. WO04N12500), probably it is specified from a BUS DB source.
 	 * @param bound Bus Direction/Bound (1 or 2)
 	 * @param language Language to be selected <code>ArrivalManager.ENGLISH_LANG</code> or <code>ArrivalManager.CHINESE_LANG</code>
+	 * @param loadFromClassPath Load the database file from class-path
 	 * @throws InvalidArrivalTargetException If the specified target arrival was invalid
 	 * @throws CouldNotLoadDatabaseException If the API could not load the database
 	 */
-	public ArrivalManager(String busno, String stop_code, int bound, int language) throws InvalidArrivalTargetException, CouldNotLoadDatabaseException{
+	public ArrivalManager(String busno, String stop_code, int bound, int language, boolean loadFromClassPath) throws InvalidArrivalTargetException, CouldNotLoadDatabaseException{
 		//Check whether the database in the memory is null or not
 		if (busstop_pair == null){
 			//If null, load the database in the directory
@@ -120,7 +125,7 @@ public class ArrivalManager {
 			long startTime = System.currentTimeMillis();
 			
 			//Load Database
-			boolean loaded = loadDatabase(false);
+			boolean loaded = loadDatabase(loadFromClassPath);
 			
 			//Save end time in ms (for calculating estimated time)
 			long endTime = System.currentTimeMillis();
@@ -461,6 +466,43 @@ public class ArrivalManager {
 	
 	public static boolean loadDatabase(boolean fromClassResources){
 		return loadDatabase(null, fromClassResources);
+	}
+	
+	public static String getStopCodeViaStopName(String route, int bound, String stopname){
+		int routeindex = getBusNoIndex(route);
+		
+		if (routeindex == -1){
+			return null;
+		}
+		
+		for (int i = 0; i < busstop_pair.get(routeindex).get(bound).size(); i++){
+			if (busstop_pair.get(routeindex).get(bound).get(i)[4].equals(stopname)){
+				return busstop_pair.get(routeindex).get(bound).get(i)[2];
+			}
+		}
+		return null;
+	}
+	
+	public static String getStopNameViaStopCode(String route, int bound, String stopcode){
+		int routeindex = getBusNoIndex(route.toUpperCase());
+		System.out.println("Finding index: " + routeindex + " of " + route);
+		if (routeindex == -1){
+			System.out.println("Cannot find route");
+			return null;
+		}
+		
+		bound--;
+		System.out.println("Need to find the index of: [" + stopcode + "]");
+		for (int i = 0; i < busstop_pair.get(routeindex).get(bound).size(); i++){
+			System.out.println("Finding... " + "[" + busstop_pair.get(routeindex).get(bound).get(i)[2] + "] route: " + busstop_pair.get(routeindex).get(bound).get(i)[0] + " bound: " + busstop_pair.get(routeindex).get(bound).get(i)[1]);
+			if (busstop_pair.get(routeindex).get(bound).get(i)[2].equals(stopcode)){
+				System.out.println("Found! " +  busstop_pair.get(routeindex).get(bound).get(i)[4]);
+				return busstop_pair.get(routeindex).get(bound).get(i)[4];
+			}
+			System.out.println("Nope.");
+		}
+		System.out.println("Can't find anything! <->");
+		return null;
 	}
 	
 	private static int getBusNoIndex(String bus_no){

@@ -12,8 +12,8 @@ public class MultiArrivals {
 	@Test
 	public void test() throws InvalidArrivalTargetException, CouldNotLoadDatabaseException{
 		MultiArrivalManager mularr = new MultiArrivalManager(50);
-		ArrivalManager arr0 = new ArrivalManager("1A", "SA06T10000", 1, ArrivalManager.ENGLISH_LANG); //SAU MAU PING (CENTRAL)
-		ArrivalManager arr1 = new ArrivalManager("1", "CH15T11000", 1, ArrivalManager.ENGLISH_LANG); //CHUK YUEN EST. BUS TERMINUS
+		ArrivalManager arr0 = new ArrivalManager("1A", "SA06T10000", 1, ArrivalManager.ENGLISH_LANG, false); //SAU MAU PING (CENTRAL)
+		ArrivalManager arr1 = new ArrivalManager("1", "CH15T11000", 1, ArrivalManager.ENGLISH_LANG, false); //CHUK YUEN EST. BUS TERMINUS
 		mularr.addArrivalManager(arr0);
 		mularr.addArrivalManager(arr1);
 		
