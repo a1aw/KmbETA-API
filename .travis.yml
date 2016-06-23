@@ -25,4 +25,4 @@ deploy:
     branch: master
 
 env:
-- projectversion=0.1.1-BETA
+- projectversion=1.0.0-SNAPSHOT
