@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.mob41.kmbeta</groupId>
   <artifactId>KmbETA-API</artifactId>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.1.1-BETA</version>
   <name>KmbETA-API</name>
   <description>An API client getting ETA from KMB buses.</description>
   <dependencies>
