@@ -1,4 +1,4 @@
-package com.mob41.kmbeta.exception;
+package com.github.mob41.kmbeta.exception;
 
 /***
  * The base class of all Invalid Exception

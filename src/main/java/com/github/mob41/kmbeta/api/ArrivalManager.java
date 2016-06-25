@@ -1,4 +1,4 @@
-package com.mob41.kmbeta.api;
+package com.github.mob41.kmbeta.api;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,10 +14,10 @@ import java.util.Properties;
 
 import org.json.JSONObject;
 
-import com.mob41.kmbeta.exception.CouldNotLoadDatabaseException;
-import com.mob41.kmbeta.exception.InvalidArrivalTargetException;
-import com.mob41.kmbeta.exception.NoETADataFetchedError;
-import com.mob41.kmbeta.exception.NoServerTimeFetchedError;
+import com.github.mob41.kmbeta.exception.CouldNotLoadDatabaseException;
+import com.github.mob41.kmbeta.exception.InvalidArrivalTargetException;
+import com.github.mob41.kmbeta.exception.NoETADataFetchedError;
+import com.github.mob41.kmbeta.exception.NoServerTimeFetchedError;
 
 public class ArrivalManager {
 	

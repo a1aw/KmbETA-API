@@ -1,4 +1,4 @@
-package com.mob41.kmbeta.api;
+package com.github.mob41.kmbeta.api;
 
 import org.json.JSONException;
 import org.json.JSONObject;

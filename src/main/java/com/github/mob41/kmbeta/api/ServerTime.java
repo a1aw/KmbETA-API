@@ -1,4 +1,4 @@
-package com.mob41.kmbeta.api;
+package com.github.mob41.kmbeta.api;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

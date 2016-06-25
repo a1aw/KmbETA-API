@@ -1,4 +1,4 @@
-package com.mob41.kmbeta.exception;
+package com.github.mob41.kmbeta.exception;
 
 /***
  * Could not load the ETA database

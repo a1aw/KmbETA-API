@@ -1,4 +1,4 @@
-package com.mob41.kmbeta.exception;
+package com.github.mob41.kmbeta.exception;
 
 /***
  * The Server Time wasn't fetched before. It kept <code>null</code>.

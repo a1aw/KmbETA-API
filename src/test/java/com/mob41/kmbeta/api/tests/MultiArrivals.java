@@ -2,10 +2,10 @@ package com.mob41.kmbeta.api.tests;
 
 import org.junit.Test;
 
-import com.mob41.kmbeta.api.ArrivalManager;
-import com.mob41.kmbeta.api.MultiArrivalManager;
-import com.mob41.kmbeta.exception.CouldNotLoadDatabaseException;
-import com.mob41.kmbeta.exception.InvalidArrivalTargetException;
+import com.github.mob41.kmbeta.api.ArrivalManager;
+import com.github.mob41.kmbeta.api.MultiArrivalManager;
+import com.github.mob41.kmbeta.exception.CouldNotLoadDatabaseException;
+import com.github.mob41.kmbeta.exception.InvalidArrivalTargetException;
 
 public class MultiArrivals {
 	
