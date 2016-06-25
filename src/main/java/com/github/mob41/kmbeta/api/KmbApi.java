@@ -1,6 +1,5 @@
 package com.github.mob41.kmbeta.api;
 
-import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,14 +8,10 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import javax.swing.JLabel;
-
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /***
@@ -618,7 +613,6 @@ public class KmbApi {
 	 * @return List
 	 */
 	public static List<String> getStopBuses(String stopcode){
-		String[] data;
 		List<List<String[]>> bus;
 		List<String[]> bound;
 		String[] stop;

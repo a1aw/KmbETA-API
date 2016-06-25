@@ -33,11 +33,11 @@ public class ArrivalManager {
 	
 	public static final int CHINESE_LANG = 1;
 	
+//Database memory
+	
 	public static String[] BUS_NO;
 	
-//Database Bus Pairs Memory
-	
-	private static List<List<List<String[]>>> busstop_pair = null;
+	private static List<Route> routes = null;
 	
 //Instance Memory
 	
@@ -75,7 +75,7 @@ public class ArrivalManager {
 	 */
 	public ArrivalManager(String busno, String stop_code, int bound, int language, boolean loadFromClassPath) throws InvalidArrivalTargetException, CouldNotLoadDatabaseException{
 		//Check whether the database in the memory is null or not
-		if (busstop_pair == null){
+		if (routes == null){
 			//If null, load the database in the directory
 			
 			System.out.println(
@@ -107,7 +107,7 @@ public class ArrivalManager {
 			throw new InvalidArrivalTargetException("Invalid language integer \"" + language + "\". It should be specified from ArrivalManager.ENGLISH_LANG or ArrivalManger.CHINESE_LANG");
 		}
 		
-		if (getBusNoIndex(busno) == -1){
+		if (getRouteIndex(busno) == -1){
 			throw new InvalidArrivalTargetException("Could not find the bus no \"" + busno + "\" in the database.");
 		}
 		
@@ -274,24 +274,18 @@ public class ArrivalManager {
 //Database In Memory I/O
 	
 	/**
-	 * <b>Get all the buses of this ArrivalManager's bus stop</b><br>
+	 * <b>Get all the routes of this ArrivalManager's bus stop</b><br>
 	 * <br> 
-	 * Returns a list with nothing if no buses match the bus-stop code
+	 * Returns a list with nothing if no routes match the bus-stop code
 	 * @return List
 	 */
-	public List<String> getBusStopBuses(){
-		List<List<String[]>> bus;
-		List<String[]> bound;
-		String[] stop;
-		List<String> output = new ArrayList<String>(busstop_pair.size());
-		for (int i = 0; i < busstop_pair.size(); i++){
-			bus = busstop_pair.get(i);
-			for (int j = 0; j < bus.size(); j++){
-				bound = bus.get(j);
-				for (int x = 0; x < bound.size(); x++){
-					stop = bound.get(x);
-					if (stop[2].equals(this.stop_code)){
-						output.add(stop[0]);
+	public List<Route> getBusStopRoutes(){
+		List<Route> output = new ArrayList<Route>(routes.size());
+		for (Route route : routes){
+			for (RouteBound bound : route.getList()){
+				for (BusStop stop : bound.getList()){
+					if (stop.getStopCode().equals(this.getStopCode())){
+						output.add(bound.getRoute());
 					}
 				}
 			}
@@ -375,53 +369,71 @@ public class ArrivalManager {
 			File file;
 			Properties prop = new Properties();
 			InputStream in;
+			
+			//Check whether the "LoadFromClass" is true or not
 			if (fromClassResources){
-				//TODO No class resource is provided right now.
+				
+				//Load from class resources
 				System.out.println(parent.getClass().getClassLoader().getResource("bus_stopdb.properties").getPath());
 				in = parent.getClass().getClassLoader().getResourceAsStream("bus_stopdb.properties");
-			} else
-			{
+				
+			} else {
+				
+				//Load from external file
 				file = new File("bus_stopdb.properties");
 				if(!file.exists()){
 					return false;
 				}
 				in = new FileInputStream(file);
+				
 			}
+			
+			//Load stream to Properties
 			prop.load(in);
-			int busdb = Integer.parseInt(prop.getProperty("bus_db"));
-			BUS_NO = new String[busdb];
-			for (int i = 0; i < busdb; i++){
+			
+			//Load routes list
+			int numOfRoutes = Integer.parseInt(prop.getProperty("bus_db"));
+			BUS_NO = new String[numOfRoutes];
+			for (int i = 0; i < numOfRoutes; i++){
 				BUS_NO[i] = prop.getProperty("bus_db" + i);
 			}
-			int buses = Integer.parseInt(prop.getProperty("buses"));
+			
 			int bounds;
+			
 			int stops;
-			if (busstop_pair != null){
-				busstop_pair.clear();
+			
+			if (routes != null){
+				routes.clear();
 			} else {
-				busstop_pair = new ArrayList<List<List<String[]>>>(BUS_NO.length);
+				routes = new ArrayList<Route>(BUS_NO.length);
 			}
-			List<List<String[]>> bus;
-			List<String[]> bound;
-			String[] stop;
-			for (int i = 0; i < buses; i++){
+			
+			Route route;
+			RouteBound bound;
+			BusStop stop;
+			String key;
+			for (int i = 0; i < numOfRoutes; i++){
+				route = new Route(BUS_NO[i]);
+				
 				bounds = Integer.parseInt(prop.getProperty(BUS_NO[i] + "-bounds"));
-				bus = new ArrayList<List<String[]>>(bounds);
+				
 				for (int j = 1; j <= bounds; j++){
+					bound = new RouteBound(route);
+					
 					stops = Integer.parseInt(prop.getProperty(BUS_NO[i] + "-bound" + j + "-stops"));
-					bound = new ArrayList<String[]>(stops);
+					
 					for (int s = 0; s < stops; s++){
-						stop = new String[5];
-						stop[0] = BUS_NO[i];
-						stop[1] = Integer.toString(j);
-						stop[2] = prop.getProperty(BUS_NO[i] + "-bound" + j + "-stop" + s + "-stopcode");
-						stop[3] = prop.getProperty(BUS_NO[i] + "-bound" + j + "-stop" + s + "-stopseq");
-						stop[4] = prop.getProperty(BUS_NO[i] + "-bound" + j + "-stop" + s + "-stopname");
-						bound.add(stop);
+						key = BUS_NO[i] + "-bound" + j + "-stop" + s;
+						
+						stop = new BusStop(route, bound, j, prop.getProperty(key + "-stopcode"),
+								prop.getProperty(key + "-stopname-eng"), prop.getProperty(key + "-stopname-chi"),
+								Integer.parseInt(prop.getProperty(key + "-stopseq")));
+						
+						bound.addStop(stop);
 					}
-					bus.add(bound);
+					route.addBound(bound);
 				}
-				busstop_pair.add(bus);
+				routes.add(route);
 			}
 			in.close();
 			return true;
@@ -435,44 +447,67 @@ public class ArrivalManager {
 		return loadDatabase(null, fromClassResources);
 	}
 	
-	public static String getStopCodeViaStopName(String route, int bound, String stopname){
-		int routeindex = getBusNoIndex(route);
+	public static String getStopCodeViaStopName(String routeName, int boundIndex, String stopname){
+		int routeindex = getRouteIndex(routeName);
 		
 		if (routeindex == -1){
 			return null;
 		}
 		
-		for (int i = 0; i < busstop_pair.get(routeindex).get(bound).size(); i++){
-			if (busstop_pair.get(routeindex).get(bound).get(i)[4].equals(stopname)){
-				return busstop_pair.get(routeindex).get(bound).get(i)[2];
+		Route route = routes.get(routeindex);
+		
+		for (RouteBound bound : route.getList()){
+			for (BusStop stop : bound.getList()){
+				if (stop.getStopNameInEnglish().equals(stopname) ||
+						stop.getStopNameInChinese().equals(stopname)){
+					return stop.getStopCode();
+				}
 			}
 		}
 		return null;
 	}
 	
-	public static String getStopNameViaStopCode(String route, int bound, String stopcode){
-		int routeindex = getBusNoIndex(route.toUpperCase());
-		System.out.println("Finding index: " + routeindex + " of " + route);
+	public static String getStopNameInEnglishViaStopCode(String routeName, int boundIndex, String stopcode){
+		int routeindex = getRouteIndex(routeName);
+		
 		if (routeindex == -1){
-			System.out.println("Cannot find route");
 			return null;
 		}
 		
-		bound--;
-		System.out.println("Need to find the index of: [" + stopcode + "]");
-		for (int i = 0; i < busstop_pair.get(routeindex).get(bound).size(); i++){
-			System.out.println("Finding... " + "[" + busstop_pair.get(routeindex).get(bound).get(i)[2] + "] route: " + busstop_pair.get(routeindex).get(bound).get(i)[0] + " bound: " + busstop_pair.get(routeindex).get(bound).get(i)[1]);
-			if (busstop_pair.get(routeindex).get(bound).get(i)[2].equals(stopcode)){
-				System.out.println("Found! " +  busstop_pair.get(routeindex).get(bound).get(i)[4]);
-				return busstop_pair.get(routeindex).get(bound).get(i)[4];
+		Route route = routes.get(routeindex);
+		
+		for (RouteBound bound : route.getList()){
+			for (BusStop stop : bound.getList()){
+				if (stop.getStopCode().equals(stopcode)){
+					return stop.getStopNameInEnglish();
+				}
 			}
-			System.out.println("Nope.");
 		}
-		System.out.println("Can't find anything! <->");
+		
 		return null;
 	}
 	
-	private static int getBusNoIndex(String bus_no){
+	public static String getStopNameInChineseViaStopCode(String routeName, int boundIndex, String stopcode){
+		int routeindex = getRouteIndex(routeName);
+		
+		if (routeindex == -1){
+			return null;
+		}
+		
+		Route route = routes.get(routeindex);
+		
+		for (RouteBound bound : route.getList()){
+			for (BusStop stop : bound.getList()){
+				if (stop.getStopCode().equals(stopcode)){
+					return stop.getStopNameInChinese();
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	private static int getRouteIndex(String bus_no){
 		for (int i = 0; i < BUS_NO.length; i++){
 			if (BUS_NO[i].equals(bus_no)){
 				return i;
@@ -490,9 +525,9 @@ public class ArrivalManager {
 	 * @param stopcode The Bus-Stop code
 	 * @return Integer
 	 */
-	public static int getStopSeq(String route, int boundno, String stopcode){
+	public static int getStopSeq(String routeName, int boundIndex, String stopcode){
 		
-		if (busstop_pair == null){
+		if (routes == null){
 			//If null, load the database in the directory
 			
 			System.out.println(
@@ -519,30 +554,29 @@ public class ArrivalManager {
 			}
 		}
 		
-		int busindex = getBusNoIndex(route);
-		if (busindex == -1){
-			System.out.println("No Bus");
+		int routeindex = getRouteIndex(routeName);
+		
+		if (routeindex == -1){
 			return -1;
 		}
-		List<List<String[]>> bus;
-		List<String[]> bound;
-		String[] stop;
-		for (int i = 0; i < busstop_pair.size(); i++){
-			bus = busstop_pair.get(i);
-			for (int j = 0; j < bus.size(); j++){
-				bound = bus.get(j);
-				for (int x = 0; x < bound.size(); x++){
-					stop = bound.get(x);
-					if (stop[0].equals(route) && stop[2].equals(stopcode) && stop[1].equals(Integer.toString(boundno))){
-						return Integer.parseInt(stop[3]);
-					}
-				}
+		
+		Route route = routes.get(routeindex);
+		RouteBound bound = route.getBound(boundIndex);
+		
+		for (BusStop stop : bound.getList()){
+			if (stop.getStopCode().equals(stopcode)){
+				return stop.getStopSeq();
 			}
 		}
+		
 		return -1;
 	}
 	
-	public static List<List<List<String[]>>> getBusStopPair(){
-		return busstop_pair;
+	public static String[] getRoutes(){
+		return BUS_NO;
+	}
+	
+	public static List<Route> getDatabase(){
+		return routes;
 	}
 }
