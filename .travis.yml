@@ -2,27 +2,18 @@ language: java
 
 install: true
 
-before_deploy:
-- echo $projectversion
-- mvn package
-- git config --global user.email "builds@travis-ci.com"
-- git config --global user.name "Travis CI"
-- export GIT_TAG=$projectversion-B$TRAVIS_BUILD_NUMBER
-- git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
-- git push -q https://$GITPERM@github.com/mob41/KmbETA-API --tags
-- ls -R
+before_install:
+    - sudo apt-get update
+    - sudo apt-get install openssh-client sshpass zip
 
-deploy:
-  skip_cleanup: true
-  provider: releases
-  api_key: $GITPERM
-  file: 
-    - target/KmbETA-API-$projectversion.jar
-    - target/KmbETA-API-$projectversion-jar-with-dependencies.jar
-    - target/KmbETA-API-$projectversion-javadoc.jar
-  on:
-    tags: false
-    branch: master
-
+after_success:
+    - cd target
+    - zip KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion.jar KmbETA-API-$projectversion-jar-with-dependencies.jar KmbETA-API-$projectversion-javadoc.jar
+    - sshpass -p $SFPERM KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip mob41@frs.sourceforge.net:/home/frs/project/KmbETA-API/develop
+    - if [ "$TRAVIS_BRANCH" = "master"]; then 
+        mv KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion-latest.zip;
+        sshpass -p $SFPERM scp KmbETA-API-$projectversion-latest.zip; mob41@frs.sourceforge.net:/home/frs/project/KmbETA-API;
+      fi;
+      
 env:
 - projectversion=1.0.0-SNAPSHOT
