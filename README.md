@@ -1,7 +1,7 @@
-# KmbETA-API [![Build Status](https://travis-ci.org/mob41/KmbETA-API.svg?branch=master)](https://travis-ci.org/mob41/KmbETA-API)
+# KmbETA-API [![Build Status](https://travis-ci.org/mob41/KmbETA-API.svg?branch=master)](https://travis-ci.org/mob41/KmbETA-API)[![Download KmbETA-API](https://img.shields.io/sourceforge/dt/kmbeta-api.svg)](https://sourceforge.net/projects/kmbeta-api/files/latest/download)
 An API client for getting KMB bus's ETA.
 
-[![Download KmbETA-API](https://img.shields.io/sourceforge/dt/kmbeta-api.svg)](https://sourceforge.net/projects/kmbeta-api/files/latest/download)
+[![Download KmbETA-API](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/kmbeta-api/files/latest/download)
 
 JavaDoc: [http://mob41.github.io/KmbETA-API](http://mob41.github.io/KmbETA-API)
 
