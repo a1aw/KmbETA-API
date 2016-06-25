@@ -11,6 +11,17 @@ Requires: JSON (Use KmbETA-API-x.x.x-jar-with-dependencies.jar for PACKED depend
 
 JavaDoc: [http://mob41.github.io/KmbETA-API](http://mob41.github.io/KmbETA-API)
 
+# Licence
+
+Based on GNU GENERAL PUBLIC LICENSE Version 3.
+
+>To "modify" a work means to copy from or adapt all or part of the work
+>in a fashion requiring copyright permission, other than the making of an
+>exact copy.  The resulting work is called a "modified version" of the
+>earlier work or a work "based on" the earlier work.
+
+I would like to clarify this point.
+
 # Tutorial
 The API has been changed from ```KmbApi``` class to ```ArrivalManager```.
 You have to create a new ```ArrivalManager``` instance to fetch arrival time.
