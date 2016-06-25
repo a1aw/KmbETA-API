@@ -8,6 +8,7 @@ before_install:
 
 after_success:
     - cd target
+    - ls -l
     - zip KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion.jar KmbETA-API-$projectversion-jar-with-dependencies.jar KmbETA-API-$projectversion-javadoc.jar
     - sshpass -p $SFPERM scp KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip mob41@frs.sourceforge.net:/home/frs/project/KmbETA-API/develop
     - if [ "$TRAVIS_BRANCH" = "master"]; then 
