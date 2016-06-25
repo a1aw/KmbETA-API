@@ -7,13 +7,14 @@ before_install:
     - sudo apt-get install openssh-client sshpass zip
 
 after_success:
+    - mvn package
     - cd target
     - ls -l
     - zip KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion.jar KmbETA-API-$projectversion-jar-with-dependencies.jar KmbETA-API-$projectversion-javadoc.jar
-    - sshpass -p $SFPERM scp KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip mob41@frs.sourceforge.net:/home/frs/project/KmbETA-API/develop
+    - sshpass -p '$SFPERM' scp KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip mob41@frs.sourceforge.net:/home/frs/project/KmbETA-API/develop
     - if [ "$TRAVIS_BRANCH" = "master"]; then 
         mv KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion-latest.zip;
-        sshpass -p $SFPERM scp KmbETA-API-$projectversion-latest.zip; mob41@frs.sourceforge.net:/home/frs/project/KmbETA-API;
+        sshpass -p '$SFPERM' scp KmbETA-API-$projectversion-latest.zip; mob41@frs.sourceforge.net:/home/frs/project/KmbETA-API;
       fi;
       
 env:
