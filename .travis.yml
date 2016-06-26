@@ -15,7 +15,6 @@ before_install:
     
 before_deploy:
 - echo $projectversion
-- mvn package
 - git config --global user.email "builds@travis-ci.com"
 - git config --global user.name "Travis CI"
 - export GIT_TAG=$projectversion-B$TRAVIS_BUILD_NUMBER
