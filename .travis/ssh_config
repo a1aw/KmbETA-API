@@ -1,0 +1,5 @@
+Host frs.sourceforge.net
+  User mob41,kmbeta-api
+  StrictHostKeyChecking no
+  IdentityFile ~/.ssh/id_rsa
+  IdentitiesOnly yes
