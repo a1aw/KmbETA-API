@@ -3,18 +3,22 @@ language: java
 install: true
 
 before_install:
+    - openssl aes-256-cbc -K $encrypted_f76c010fc1af_key -iv $encrypted_f76c010fc1af_iv -in .travis/ssh-key.enc -out ~/.ssh/id_rsa -d
+    - chmod 600 ~/.ssh/id_rsa
+    - eval $(ssh-agent)
+    - ssh-add ~/.ssh/id_rsa
+    - cp .travis/ssh_config ~/.ssh/config
     - sudo apt-get update
-    - sudo apt-get install openssh-client sshpass zip
-
+    - sudo apt-get install openssh-client zip
 after_success:
     - mvn package
     - cd target
     - ls -l
     - zip KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion.jar KmbETA-API-$projectversion-jar-with-dependencies.jar KmbETA-API-$projectversion-javadoc.jar
-    - scp -o StrictHostKeyChecking=no KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip mob41,kmbeta-api@frs.sourceforge.net:/home/frs/project/k/km/KmbETA-API/develop
+    - scp KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip mob41,kmbeta-api@frs.sourceforge.net:/home/frs/project/k/km/KmbETA-API/develop
     - if [ "$TRAVIS_BRANCH" = "master" ]; then 
         mv KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion-latest.zip;
-        scp -o StrictHostKeyChecking=no KmbETA-API-$projectversion-latest.zip; mob41,kmbeta-api@frs.sourceforge.net:/home/frs/project/k/km/KmbETA-API;
+        scp KmbETA-API-$projectversion-latest.zip; mob41,kmbeta-api@frs.sourceforge.net:/home/frs/project/k/km/KmbETA-API;
       fi;
       
 env:
