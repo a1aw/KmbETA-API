@@ -12,14 +12,34 @@ before_install:
     - ls -a ~/.ssh
     - sudo apt-get update
     - sudo apt-get install openssh-client zip
+    
+before_deploy:
+- echo $projectversion
+- mvn package
+- git config --global user.email "builds@travis-ci.com"
+- git config --global user.name "Travis CI"
+- export GIT_TAG=$projectversion-B$TRAVIS_BUILD_NUMBER
+- git tag $GIT_TAG -a -m "Development build $TRAVIS_BUILD_NUMBER from Travis-CI"
+- git push -q https://$GITPERM@github.com/mob41/KmbETA-API --tags
+- ls -R
+
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key: $GITPERM
+  file: 
+    - KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip
+  on:
+    tags: false
+    branch: develop
+
 after_success:
     - mvn package
     - cd target
     - ls -l
     - zip KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion.jar KmbETA-API-$projectversion-jar-with-dependencies.jar KmbETA-API-$projectversion-javadoc.jar
-    - scp -v -i ~/.ssh/id_rsa KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip mob41,kmbeta-api@frs.sourceforge.net:/home/frs/project/k/km/kmbeta-api/develop
     - if [ "$TRAVIS_BRANCH" = "master" ]; then 
-        mv KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion-latest.zip;
+        cp KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion-latest.zip;
         scp -v -i ~/.ssh/id_rsa KmbETA-API-$projectversion-latest.zip; mob41,kmbeta-api@frs.sourceforge.net:/home/frs/project/k/km/kmbeta-api;
       fi;
       
