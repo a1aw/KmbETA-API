@@ -17,10 +17,10 @@ after_success:
     - cd target
     - ls -l
     - zip KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion.jar KmbETA-API-$projectversion-jar-with-dependencies.jar KmbETA-API-$projectversion-javadoc.jar
-    - scp -v -i ~/.ssh/id_rsa KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip mob41,kmbeta-api@frs.sourceforge.net:/home/frs/project/k/km/KmbETA-API/develop
+    - scp -v -i ~/.ssh/id_rsa KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip mob41,kmbeta-api@frs.sourceforge.net:/home/frs/project/k/km/kmbeta-api/develop
     - if [ "$TRAVIS_BRANCH" = "master" ]; then 
         mv KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion-latest.zip;
-        scp -v -i ~/.ssh/id_rsa KmbETA-API-$projectversion-latest.zip; mob41,kmbeta-api@frs.sourceforge.net:/home/frs/project/k/km/KmbETA-API;
+        scp -v -i ~/.ssh/id_rsa KmbETA-API-$projectversion-latest.zip; mob41,kmbeta-api@frs.sourceforge.net:/home/frs/project/k/km/kmbeta-api;
       fi;
       
 env:
