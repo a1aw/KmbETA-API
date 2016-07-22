@@ -16,8 +16,22 @@ Based on GNU GENERAL PUBLIC LICENSE Version 3.
 
 I would like to clarify this point.
 
+# Changelog
+
+```1.0.0-SNAPSHOT``` Changelog:
+ - Improved database structure
+   - Changing to JSON format, more web friendly
+   - Separating classes in API
+ - Offline database is no longer required. By default, fetch the [pre-built database](https://github.com/KmbETA-DB) from the web
+ - Support for web pre-built database. See [here](https://github.com/KmbETA-DB). (I call it "static database", but web)
+ - Support for fetching database information directly (I call it "non-static database")
+ - Some typo on function names
+ - Improved some JavaDoc
+
 # Tutorial
 
 Check out the wiki [Quick Start](https://github.com/mob41/KmbETA-API/wiki/Quick-Start).
 
-Remember also to generate a database using the DB Builder: [Wiki Tutorial](https://github.com/mob41/KmbETA-API/wiki/How-to-use-the-DBBuilder-(Auto-Mode))
+Offline database is <b>not required</b> since ```1.0.0-SNAPSHOT```. By default, the API will download the web DB from [here](https://github.com/KmbETA-DB) or [here](https://db.kmbeta.ml) on each launch.
+
+Offline database can also be used by specifying a parameter to ```ArrivalManager```. (See the [wiki](https://github.com/mob41/KmbETA-API/wiki/Quick-Start)) It is also available to be [built](https://github.com/mob41/KmbETA-API/wiki/How-to-use-the-DBBuilder-(Auto-Mode)) using the [DB-Builder](https://github.com/KmbETA-DBBuilder) and downloaded from the [repository](https://github.com/KmbETA-DB) or the [website](https://db.kmbeta.ml/). (They are actually the same) But, now, the API still cannot built 
