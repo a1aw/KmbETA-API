@@ -34,6 +34,8 @@ public class ArrivalManager {
 	
 	private static BusDatabase busDatabase; //Only loads once. Avoid loading different instances of database.
 	
+	private static int db_last_choice = -1;
+	
 //Instance Memory
 	
 	private JSONObject data = null;
@@ -137,7 +139,7 @@ public class ArrivalManager {
 	 */
 	public ArrivalManager(String busno, String stop_code, int bound, int language, int loadFromWhere, Object classParent, boolean fromClassResources, boolean showLog) throws InvalidArrivalTargetException, CouldNotLoadDatabaseException{
 		//Check whether the database in the memory is null or not
-		if (busDatabase == null){
+		if (busDatabase == null || busDatabase.getRoutesNames() == null || db_last_choice != loadFromWhere){
 			//If null, load the database
 			busDatabase = new BusDatabase();
 			
@@ -183,6 +185,7 @@ public class ArrivalManager {
 			if (!loaded){
 				throw new CouldNotLoadDatabaseException("Could not load database. Check your internet connection or the database file placed near your application.");
 			}
+			db_last_choice = loadFromWhere;
 		}
 		
 		//Check is language parameter valid
