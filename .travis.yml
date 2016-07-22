@@ -37,10 +37,8 @@ after_success:
     - cd target
     - ls -l
     - zip KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion.jar KmbETA-API-$projectversion-jar-with-dependencies.jar KmbETA-API-$projectversion-javadoc.jar
-    - if [ "$TRAVIS_BRANCH" = "master" ]; then 
-        cp KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion-latest.zip;
-        scp -v -i ~/.ssh/id_rsa KmbETA-API-$projectversion-latest.zip; mob41,kmbeta-api@frs.sourceforge.net:/home/frs/project/k/km/kmbeta-api;
-      fi;
+    - if [ "$TRAVIS_BRANCH" = "master" ]; then cp KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion-latest.zip ; fi
+    - if [ "$TRAVIS_BRANCH" = "master" ]; then scp -v -i ~/.ssh/id_rsa KmbETA-API-$projectversion-latest.zip; mob41,kmbeta-api@frs.sourceforge.net:/home/frs/project/k/km/kmbeta-api ; fi
       
 branches:
     only:
