@@ -228,7 +228,7 @@ public class ArrivalManager {
 	
 //Getters
 	
-	public BusDatabase getBusDatabase(){
+	public static BusDatabase getBusDatabase(){
 		return busDatabase;
 	}
 	
