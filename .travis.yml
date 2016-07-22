@@ -38,7 +38,7 @@ after_success:
     - cd target
     - ls -l
     - zip KmbETA-API-$projectversion-$TRAVIS_BRANCH-B$TRAVIS_BUILD_NUMBER.zip KmbETA-API-$projectversion.jar KmbETA-API-$projectversion-jar-with-dependencies.jar KmbETA-API-$projectversion-javadoc.jar
-    - if [ "$TRAVIS_BRANCH" = "master" ]; then .travis/deploysf.sh ; fi
+    - if [ "$TRAVIS_BRANCH" = "master" ]; then ../.travis/deploysf.sh ; fi
       
 branches:
     only:
