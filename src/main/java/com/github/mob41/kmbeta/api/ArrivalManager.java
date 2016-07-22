@@ -336,6 +336,8 @@ public class ArrivalManager {
 	 * The arrival time is formatted to: <code>HH:MM</code><br>
 	 * If hour/minute is less than <code>10</code>, a <code>0</code> will be added to the front.<br>
 	 * If the received response is equal to the last departed message, it will return <code>"End"</code>.<br>
+	 * If the received response is invalid, it will return <code>"Invalid"</code>.<br>
+	 * If no response received, it will probably return <code>"NoData"</code> or <code>"Failed"</code>.<br>
 	 * If the separation of Hour and Minutes failed, it will return the raw arrival time.
 	 * @return
 	 * @throws NoETADataFetchedError
@@ -358,10 +360,10 @@ public class ArrivalManager {
 			hr = arrt.getArrivalHour();
 			min = arrt.getArrivalMin();
 		}
-		if (hr == -1 || min == -1){
-			return arrt.getRawArrivalTime();
-		} else if (hr == -3 || min == -3){
+		if (hr == -3 || min == -3){
 			return "End";
+		} else if (hr <= -1 || min <= -1){
+			return arrt.getRawArrivalTime();
 		}
 		String hour = hr < 10 ? "0" + hr : Integer.toString(hr);
 		String minute = min < 10 ? "0" + min : Integer.toString(min);

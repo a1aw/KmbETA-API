@@ -18,7 +18,6 @@ public class ArrivalTime {
 	}
 
 	public ArrivalTime(JSONObject etadata, int index) throws JSONException{
-		System.out.println(etadata);
 		if (etadata == null){
 			this.raw_time = "Failed";
 		} else if (!etadata.isNull("responsecode") && etadata.getInt("responsecode") <= 0){
@@ -31,7 +30,21 @@ public class ArrivalTime {
 		this.index = index;
 	}
 	
-	public void changeTargetIndex(int index){
+	/**
+	 * Gets the pure/untouched JSON passed to this instance.
+	 * @return the pure/untouched <code>JSONObject</code> response
+	 */
+	public JSONObject getRawJSON(){
+		return etadata;
+	}
+	
+	/**
+	 * Sets the target index. The response contains multiple estimated arrival time data.<br>
+	 * <br>
+	 * By default, the first one is selected.<br>
+	 * @param index
+	 */
+	public void setTargetIndex(int index){
 		String output = (String) etadata.getJSONArray("response").getJSONObject(index).get("t");
 		
 		this.raw_time = output;
