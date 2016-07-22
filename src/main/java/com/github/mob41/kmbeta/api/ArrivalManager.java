@@ -1,16 +1,9 @@
 package com.github.mob41.kmbeta.api;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
 
 import org.json.JSONObject;
 
@@ -33,11 +26,13 @@ public class ArrivalManager {
 	
 	public static final int CHINESE_LANG = 1;
 	
-//Database memory
+	public static final int DB_FETCH_DIRECTLY = 3;
 	
-	public static String[] BUS_NO;
+	public static final int DB_LOAD_FROM_WEB = 4;
 	
-	private static List<Route> routes = null;
+	public static final int DB_LOAD_FROM_FILE = 5;
+	
+	private static BusDatabase busDatabase; //Only loads once. Avoid loading different instances of database.
 	
 //Instance Memory
 	
@@ -59,46 +54,134 @@ public class ArrivalManager {
 	
 //Init
 	
-	public ArrivalManager(String busno, String stop_code, int bound, int language) throws InvalidArrivalTargetException, CouldNotLoadDatabaseException{
-		this(busno, stop_code, bound, language, false);
-	}
-
 	/***
-	 * Creates a new <code>ArrivalManager</code> instance.
+	 * Creates a new <code>ArrivalManager</code> instance and show logs<br>
+	 * <br>
+	 * By default, it will load the database from the server by downloading it and save the JSON to memory.<br>
+	 * It can be found at <a href="https://db.kmbeta.ml/">https://db.kmbeta.ml</a>
 	 * @param busno Bus No.
 	 * @param stop_code Bus Stop Code (e.g. WO04N12500), probably it is specified from a BUS DB source.
 	 * @param bound Bus Direction/Bound (1 or 2)
 	 * @param language Language to be selected <code>ArrivalManager.ENGLISH_LANG</code> or <code>ArrivalManager.CHINESE_LANG</code>
-	 * @param loadFromClassPath Load the database file from class-path
 	 * @throws InvalidArrivalTargetException If the specified target arrival was invalid
 	 * @throws CouldNotLoadDatabaseException If the API could not load the database
 	 */
-	public ArrivalManager(String busno, String stop_code, int bound, int language, boolean loadFromClassPath) throws InvalidArrivalTargetException, CouldNotLoadDatabaseException{
+	public ArrivalManager(String busno, String stop_code, int bound, int language) throws InvalidArrivalTargetException, CouldNotLoadDatabaseException{
+		this(busno, stop_code, bound, language, DB_LOAD_FROM_WEB, null, false, true);
+	}
+	
+	/***
+	 * Creates a new <code>ArrivalManager</code> instance.<br>
+	 * <br>
+	 * By default, it will load the database from the server by downloading it and save the JSON to memory.<br>
+	 * It can be found at <a href="https://db.kmbeta.ml/">https://db.kmbeta.ml</a>
+	 * @param busno Bus No.
+	 * @param stop_code Bus Stop Code (e.g. WO04N12500), probably it is specified from a BUS DB source.
+	 * @param bound Bus Direction/Bound (1 or 2)
+	 * @param language Language to be selected <code>ArrivalManager.ENGLISH_LANG</code> or <code>ArrivalManager.CHINESE_LANG</code>
+	 * @param showLog Show log
+	 * @throws InvalidArrivalTargetException If the specified target arrival was invalid
+	 * @throws CouldNotLoadDatabaseException If the API could not load the database
+	 */
+	public ArrivalManager(String busno, String stop_code, int bound, int language, boolean showLog) throws InvalidArrivalTargetException, CouldNotLoadDatabaseException{
+		this(busno, stop_code, bound, language, DB_LOAD_FROM_WEB, null, false, showLog);
+	}
+	
+	/***
+	 * Creates a new <code>ArrivalManager</code> instance.<br>
+	 * <br>
+	 * This will load the database from file.
+	 * @param busno Bus No.
+	 * @param stop_code Bus Stop Code (e.g. WO04N12500), probably it is specified from a BUS DB source.
+	 * @param bound Bus Direction/Bound (1 or 2)
+	 * @param language Language to be selected <code>ArrivalManager.ENGLISH_LANG</code> or <code>ArrivalManager.CHINESE_LANG</code>
+	 * @param parent The class resource parent.
+	 * @param showLog Show log
+	 * @throws InvalidArrivalTargetException If the specified target arrival was invalid
+	 * @throws CouldNotLoadDatabaseException If the API could not load the database
+	 */
+	public ArrivalManager(String busno, String stop_code, int bound, int language, Object parent, boolean loadFromClassResources, boolean showLog) throws InvalidArrivalTargetException, CouldNotLoadDatabaseException{
+		this(busno, stop_code, bound, language, DB_LOAD_FROM_FILE, parent, loadFromClassResources, showLog);
+	}
+	
+	/***
+	 * Creates a new <code>ArrivalManager</code> instance.<br>
+	 * <br>
+	 * This will load the database from file.
+	 * @param busno Bus No.
+	 * @param stop_code Bus Stop Code (e.g. WO04N12500), probably it is specified from a BUS DB source.
+	 * @param bound Bus Direction/Bound (1 or 2)
+	 * @param language Language to be selected <code>ArrivalManager.ENGLISH_LANG</code> or <code>ArrivalManager.CHINESE_LANG</code>
+	 * @param parent The class resource parent
+	 * @throws InvalidArrivalTargetException If the specified target arrival was invalid
+	 * @throws CouldNotLoadDatabaseException If the API could not load the database
+	 */
+	public ArrivalManager(String busno, String stop_code, int bound, int language, Object parent, boolean loadFromClassResources) throws InvalidArrivalTargetException, CouldNotLoadDatabaseException{
+		this(busno, stop_code, bound, language, DB_LOAD_FROM_FILE, parent, loadFromClassResources, true);
+	}
+
+	/***
+	 * Creates a new <code>ArrivalManager</code> instance.<br>
+	 * <br>
+	 * This function contains all the parameters. Read the documentation/wiki before continue.<br>
+	 * Or simply use another overloaded functions.
+	 * @param busno Bus No.
+	 * @param stop_code Bus Stop Code (e.g. WO04N12500), probably it is specified from a BUS DB source.
+	 * @param bound Bus Direction/Bound (1 or 2)
+	 * @param language Language to be selected <code>ArrivalManager.ENGLISH_LANG</code> or <code>ArrivalManager.CHINESE_LANG</code>
+	 * @param loadFromWhere Specify the <code>ArrivalManager.DB_*</code> constant fields, to choose the DB source.
+	 * @param classParent If <code>ArrivalManager.DB_LOAD_FROM_FILE</code> is specified, and load from class resources, you can specify a class parent.
+	 * @param fromClassResources Only if <code>ArrivalManager.DB_LOAD_FROM_FILE</code> is specified, specify whether the file should be loaded from class resources
+	 * @throws InvalidArrivalTargetException If the specified target arrival was invalid
+	 * @throws CouldNotLoadDatabaseException If the API could not load the database
+	 */
+	public ArrivalManager(String busno, String stop_code, int bound, int language, int loadFromWhere, Object classParent, boolean fromClassResources, boolean showLog) throws InvalidArrivalTargetException, CouldNotLoadDatabaseException{
 		//Check whether the database in the memory is null or not
-		if (routes == null){
-			//If null, load the database in the directory
+		if (busDatabase == null){
+			//If null, load the database
+			busDatabase = new BusDatabase();
 			
-			System.out.println(
-					"ArrivalManager: Database is not loaded. Loading now...\n" +
-					"ArrivalManager: It might take a while..."
-					);
+			if (showLog){
+				System.out.println(
+						"ArrivalManager: Database is not loaded. Loading now...\n" +
+						"ArrivalManager: It might take a while..."
+						);
+			}
 			
 			//Save start time in ms (for calculating estimated time)
 			long startTime = System.currentTimeMillis();
 			
 			//Load Database
-			boolean loaded = loadDatabase(loadFromClassPath);
+			boolean loaded = false;
+			switch (loadFromWhere){
+			case DB_FETCH_DIRECTLY:
+				loaded = true;
+				break;
+			case DB_LOAD_FROM_WEB:
+				loaded = busDatabase.loadWebDB();
+				break;
+			case DB_LOAD_FROM_FILE:
+				loaded = busDatabase.loadDatabase(classParent, fromClassResources);
+				break;
+			default:
+				if (showLog){
+					System.out.println("ArrivalManager: Invalid field specified: " + loadFromWhere);
+				}
+				throw new CouldNotLoadDatabaseException("Invalid field specified: " + loadFromWhere);
+			}
 			
 			//Save end time in ms (for calculating estimated time)
 			long endTime = System.currentTimeMillis();
 			
-			System.out.println(
-					"ArrivalManager: " + 
-					(loaded ? "Loaded database. Took " + (endTime - startTime) + " ms to load." : "Could not load database. Check whether the DB is exist, valid or not")
-					);
+			if (showLog){
+				System.out.println(
+						"ArrivalManager: " + 
+						(loaded ? "Loaded database. Took " + (endTime - startTime) + " ms to load." : "Could not load database. Check your internet connection or the database file placed near your application.")
+						);
+			}
 			
 			if (!loaded){
-				throw new CouldNotLoadDatabaseException("Could not load database. Check whether the DB is exist, valid or not");
+				throw new CouldNotLoadDatabaseException("Could not load database. Check your internet connection or the database file placed near your application.");
 			}
 		}
 		
@@ -107,12 +190,12 @@ public class ArrivalManager {
 			throw new InvalidArrivalTargetException("Invalid language integer \"" + language + "\". It should be specified from ArrivalManager.ENGLISH_LANG or ArrivalManger.CHINESE_LANG");
 		}
 		
-		if (getRouteIndex(busno) == -1){
+		if (getBusDatabase().getRouteIndex(busno) == -1){
 			throw new InvalidArrivalTargetException("Could not find the bus no \"" + busno + "\" in the database.");
 		}
 		
 		//Find Stop sequence
-		int stop_seq = getStopSeq(busno, bound, stop_code);
+		int stop_seq = getBusDatabase().getStopSequence(busno, bound, stop_code);
 		if (stop_seq == -1){
 			throw new InvalidArrivalTargetException("Could not find the stop sequence by BusNo:"
 					+ " \"" + busno + "\", StopCode: \"" + stop_code + ", Bound: \"" + bound + "\"");
@@ -140,7 +223,11 @@ public class ArrivalManager {
 		return data;
 	}
 	
-//Recall
+//Getters
+	
+	public BusDatabase getBusDatabase(){
+		return busDatabase;
+	}
 	
 	public String getBusNo(){
 		return busno;
@@ -173,7 +260,7 @@ public class ArrivalManager {
 	}
 	
 	/**
-	 * Get arrival time remaining<br>
+	 * Get remaining arrival minute formatted<br>
 	 * <br>
 	 * Returns a string with this format:<br>
 	 * <b>RR min(s)</b><br>
@@ -184,7 +271,7 @@ public class ArrivalManager {
 	 * <b>Arrived</b>: If <code>remainMin</code> smaller or equal to 0
 	 * @return A String with the format mentioned above
 	 */
-	public String getArrivalTimeRemaining_Formatted(){
+	public String getRemainingArrivalMinuteText(){
 		int srvhr = srvt.getServerHour();
 		int srvmin = srvt.getServerMin();
 		int arrhr = arrt.getArrivalHour();
@@ -221,7 +308,7 @@ public class ArrivalManager {
 	 * 
 	 * @return Remaining minutes
 	 */
-	public int getArrivalTimeRemaining_Min(){
+	public int getRemainingArrivalTime(){
 		int srvhr = srvt.getServerHour();
 		int srvmin = srvt.getServerMin();
 		int arrhr = arrt.getArrivalHour();
@@ -243,7 +330,18 @@ public class ArrivalManager {
 		return remainMin;
 	}
 	
-	public String getArrivalTime_Formatted() throws NoETADataFetchedError, NoServerTimeFetchedError{
+	/**
+	 * Returns a formatted arrival time text.<br>
+	 * <br>
+	 * The arrival time is formatted to: <code>HH:MM</code><br>
+	 * If hour/minute is less than <code>10</code>, a <code>0</code> will be added to the front.<br>
+	 * If the received response is equal to the last departed message, it will return <code>"End"</code>.<br>
+	 * If the separation of Hour and Minutes failed, it will return the raw arrival time.
+	 * @return
+	 * @throws NoETADataFetchedError
+	 * @throws NoServerTimeFetchedError
+	 */
+	public String getArrivalTimeText() throws NoETADataFetchedError, NoServerTimeFetchedError{
 		int hr;
 		int min;
 		
@@ -261,7 +359,7 @@ public class ArrivalManager {
 			min = arrt.getArrivalMin();
 		}
 		if (hr == -1 || min == -1){
-			return "Invalid";
+			return arrt.getRawArrivalTime();
 		} else if (hr == -3 || min == -3){
 			return "End";
 		}
@@ -270,32 +368,6 @@ public class ArrivalManager {
 		String output = hour + ":" + minute;
 		return output;
 	}
-	
-//Database In Memory I/O
-	
-	/**
-	 * <b>Get all the routes of this ArrivalManager's bus stop</b><br>
-	 * <br> 
-	 * Returns a list with nothing if no routes match the bus-stop code
-	 * @return List
-	 */
-	public List<Route> getBusStopRoutes(){
-		List<Route> output = new ArrayList<Route>(routes.size());
-		for (Route route : routes){
-			for (RouteBound bound : route.getList()){
-				for (BusStop stop : bound.getList()){
-					if (stop.getStopCode().equals(this.getStopCode())){
-						output.add(bound.getRoute());
-					}
-				}
-			}
-		}
-		return output;
-	}
-	
-	
-	
-	
 	
 //Static functions
 	
@@ -339,244 +411,5 @@ public class ArrivalManager {
 		} catch (Exception e){
 			return null;
 		}
-	}
-	
-	/**
-	 * Automatically generates a <code>bus_stopdb.properties</code> database<br>
-	 * <br>
-	 * It will take a while (probably a lot of time) to generate a database.<br>
-	 * It is <b>not recommended</b> to implement with the application <b>programmatically</b>.
-	 * @return Boolean whether the database is successfully generated
-	 */
-	public static boolean generateDatabase(){
-		//TODO Auto-generate Database (From DB-Builder)
-		return false;
-	}
-	
-	/***
-	 * Load database from class-path or file-system<br>
-	 * <br>
-	 * It is automatically called if the database in the memory is <code>null</code>.<br>
-	 * <b>Must be called before any database reading events.</b>
-	 * @param fromClassResources Load from Class-path<br>
-	 * @param parent A class parent to be specified
-	 * If <code>true</code>, make sure the <code>bus_stopdb.properties</code> is attached in the class-path.<br>
-	 * If <code>false</code>, make sure the <code>bus_stopdb.properties</code> is inside the working directory.
-	 * @return Boolean whether the database is successfully loaded.
-	 */
-	public static boolean loadDatabase(Object parent, boolean fromClassResources){
-		try {
-			File file;
-			Properties prop = new Properties();
-			InputStream in;
-			
-			//Check whether the "LoadFromClass" is true or not
-			if (fromClassResources){
-				
-				//Load from class resources
-				System.out.println(parent.getClass().getClassLoader().getResource("bus_stopdb.properties").getPath());
-				in = parent.getClass().getClassLoader().getResourceAsStream("bus_stopdb.properties");
-				
-			} else {
-				
-				//Load from external file
-				file = new File("bus_stopdb.properties");
-				if(!file.exists()){
-					return false;
-				}
-				in = new FileInputStream(file);
-				
-			}
-			
-			//Load stream to Properties
-			prop.load(in);
-			
-			//Load routes list
-			int numOfRoutes = Integer.parseInt(prop.getProperty("bus_db"));
-			BUS_NO = new String[numOfRoutes];
-			for (int i = 0; i < numOfRoutes; i++){
-				BUS_NO[i] = prop.getProperty("bus_db" + i);
-			}
-			
-			int bounds;
-			
-			int stops;
-			
-			if (routes != null){
-				routes.clear();
-			} else {
-				routes = new ArrayList<Route>(BUS_NO.length);
-			}
-			
-			Route route;
-			RouteBound bound;
-			BusStop stop;
-			String key;
-			for (int i = 0; i < numOfRoutes; i++){
-				route = new Route(BUS_NO[i]);
-				
-				bounds = Integer.parseInt(prop.getProperty(BUS_NO[i] + "-bounds"));
-				
-				for (int j = 1; j <= bounds; j++){
-					bound = new RouteBound(route);
-					
-					stops = Integer.parseInt(prop.getProperty(BUS_NO[i] + "-bound" + j + "-stops"));
-					
-					for (int s = 0; s < stops; s++){
-						key = BUS_NO[i] + "-bound" + j + "-stop" + s;
-						
-						stop = new BusStop(route, bound, j, prop.getProperty(key + "-stopcode"),
-								prop.getProperty(key + "-stopname-eng"), prop.getProperty(key + "-stopname-chi"),
-								Integer.parseInt(prop.getProperty(key + "-stopseq")));
-						
-						bound.addStop(stop);
-					}
-					route.addBound(bound);
-				}
-				routes.add(route);
-			}
-			in.close();
-			return true;
-		} catch (Exception e){
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
-	public static boolean loadDatabase(boolean fromClassResources){
-		return loadDatabase(null, fromClassResources);
-	}
-	
-	public static String getStopCodeViaStopName(String routeName, int boundIndex, String stopname){
-		int routeindex = getRouteIndex(routeName);
-		
-		if (routeindex == -1){
-			return null;
-		}
-		
-		Route route = routes.get(routeindex);
-		
-		for (RouteBound bound : route.getList()){
-			for (BusStop stop : bound.getList()){
-				if (stop.getStopNameInEnglish().equals(stopname) ||
-						stop.getStopNameInChinese().equals(stopname)){
-					return stop.getStopCode();
-				}
-			}
-		}
-		return null;
-	}
-	
-	public static String getStopNameInEnglishViaStopCode(String routeName, int boundIndex, String stopcode){
-		int routeindex = getRouteIndex(routeName);
-		
-		if (routeindex == -1){
-			return null;
-		}
-		
-		Route route = routes.get(routeindex);
-		
-		for (RouteBound bound : route.getList()){
-			for (BusStop stop : bound.getList()){
-				if (stop.getStopCode().equals(stopcode)){
-					return stop.getStopNameInEnglish();
-				}
-			}
-		}
-		
-		return null;
-	}
-	
-	public static String getStopNameInChineseViaStopCode(String routeName, int boundIndex, String stopcode){
-		int routeindex = getRouteIndex(routeName);
-		
-		if (routeindex == -1){
-			return null;
-		}
-		
-		Route route = routes.get(routeindex);
-		
-		for (RouteBound bound : route.getList()){
-			for (BusStop stop : bound.getList()){
-				if (stop.getStopCode().equals(stopcode)){
-					return stop.getStopNameInChinese();
-				}
-			}
-		}
-		
-		return null;
-	}
-	
-	private static int getRouteIndex(String bus_no){
-		for (int i = 0; i < BUS_NO.length; i++){
-			if (BUS_NO[i].equals(bus_no)){
-				return i;
-			}
-		}
-		return -1;
-	}
-	
-	/***
-	 * <b>Get the bus-stop sequence of the route with the bus-stop code</b><br>
-	 * <br>
-	 * Returns -1 if the route or the bus-stop code do not exist.
-	 * @param route The Bus-Stop Number/Name
-	 * @param boundno The Bound of the route
-	 * @param stopcode The Bus-Stop code
-	 * @return Integer
-	 */
-	public static int getStopSeq(String routeName, int boundIndex, String stopcode){
-		
-		if (routes == null){
-			//If null, load the database in the directory
-			
-			System.out.println(
-					"ArrivalManager: Database is not loaded. Loading now...\n" +
-					"ArrivalManager: It might take a while..."
-					);
-			
-			//Save start time in ms (for calculating estimated time)
-			long startTime = System.currentTimeMillis();
-			
-			//Load Database
-			boolean loaded = loadDatabase(false);
-			
-			//Save end time in ms (for calculating estimated time)
-			long endTime = System.currentTimeMillis();
-			
-			System.out.println(
-					"ArrivalManager: " + 
-					(loaded ? "Loaded database. Took " + (endTime - startTime) + " ms to load." : "Could not load database. Check whether the DB is exist, valid or not")
-					);
-			
-			if (!loaded){
-				return -2;
-			}
-		}
-		
-		int routeindex = getRouteIndex(routeName);
-		
-		if (routeindex == -1){
-			return -1;
-		}
-		
-		Route route = routes.get(routeindex);
-		RouteBound bound = route.getBound(boundIndex);
-		
-		for (BusStop stop : bound.getList()){
-			if (stop.getStopCode().equals(stopcode)){
-				return stop.getStopSeq();
-			}
-		}
-		
-		return -1;
-	}
-	
-	public static String[] getRoutes(){
-		return BUS_NO;
-	}
-	
-	public static List<Route> getDatabase(){
-		return routes;
 	}
 }

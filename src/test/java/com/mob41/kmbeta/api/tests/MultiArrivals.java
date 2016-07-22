@@ -25,7 +25,7 @@ public class MultiArrivals {
 			System.out.println("Arr" + i + " Bound: " + man.getBound());
 			System.out.println("Arr" + i + " StopCode: " + man.getStopCode());
 			System.out.println("Arr" + i + " StopSeq: " + man.getStopSeq());
-			System.out.println("Arr" + i + ": " + man.getArrivalTimeRemaining_Formatted());
+			System.out.println("Arr" + i + ": " + man.getRemainingArrivalMinuteText());
 		}
 	}
 }

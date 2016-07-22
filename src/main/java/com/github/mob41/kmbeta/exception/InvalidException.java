@@ -5,7 +5,7 @@ package com.github.mob41.kmbeta.exception;
  * @author mob41
  *
  */
-public class InvalidException extends Exception {
+public class InvalidException extends RuntimeException {
 
 	/**
 	 * 

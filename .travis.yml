@@ -42,5 +42,10 @@ after_success:
         scp -v -i ~/.ssh/id_rsa KmbETA-API-$projectversion-latest.zip; mob41,kmbeta-api@frs.sourceforge.net:/home/frs/project/k/km/kmbeta-api;
       fi;
       
+branches:
+    only:
+        - master
+        - develop
+      
 env:
 - projectversion=1.0.0-SNAPSHOT

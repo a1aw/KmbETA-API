@@ -18,9 +18,15 @@ public class ArrivalTime {
 	}
 
 	public ArrivalTime(JSONObject etadata, int index) throws JSONException{
-		String output = (String) etadata.getJSONArray("response").getJSONObject(index).get("t");
-		
-		this.raw_time = output;
+		System.out.println(etadata);
+		if (etadata == null){
+			this.raw_time = "Failed";
+		} else if (!etadata.isNull("responsecode") && etadata.getInt("responsecode") <= 0){
+			this.raw_time = "NoData";
+		} else {
+			String output = (String) etadata.getJSONArray("response").getJSONObject(index).get("t");
+			this.raw_time = output;
+		}
 		this.etadata = etadata;
 		this.index = index;
 	}

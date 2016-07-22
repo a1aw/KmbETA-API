@@ -5,7 +5,7 @@ package com.github.mob41.kmbeta.exception;
  * @author mob41
  *
  */
-public class CouldNotLoadDatabaseException extends Exception {
+public class CouldNotLoadDatabaseException extends RuntimeException {
 
 	/**
 	 * 

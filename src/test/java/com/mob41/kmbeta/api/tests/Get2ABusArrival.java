@@ -16,7 +16,7 @@ public class Get2ABusArrival {
 		final int bound = 1;
 		ArrivalManager arr = new ArrivalManager(busno, stopcode, bound, ArrivalManager.ENGLISH_LANG, false);
 		arr.fetchNewData(); //This also run getServerTime()
-		System.out.println("Arrival status at " + stopname + " is " + arr.getArrivalTimeRemaining_Formatted());
+		System.out.println("Arrival status at " + stopname + " is " + arr.getRemainingArrivalMinuteText());
 		System.out.println("Stopname: " + stopname);
 		System.out.println("Stopcode:" + stopcode);
 	}
