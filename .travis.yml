@@ -21,7 +21,7 @@ before_deploy:
 - export GIT_TAG=$projectversion-B$TRAVIS_BUILD_NUMBER
 - git tag $GIT_TAG -a -m "Development build $TRAVIS_BUILD_NUMBER from Travis-CI"
 - git push -q https://$GITPERM@github.com/mob41/KmbETA-API --tags
-- ls -R
+- ls -l
 
 deploy:
   skip_cleanup: true
