@@ -20,7 +20,7 @@ public class ArrivalTime {
 	public ArrivalTime(JSONObject etadata, int index) throws JSONException{
 		if (etadata == null){
 			this.raw_time = "Failed";
-		} else if (!etadata.isNull("responsecode") && etadata.getInt("responsecode") <= 0){
+		} else if (etadata.isNull("response")){
 			this.raw_time = "NoData";
 		} else {
 			String output = (String) etadata.getJSONArray("response").getJSONObject(index).get("t");

@@ -32,7 +32,7 @@ public class ArrivalManager {
 	
 	public static final int DB_LOAD_FROM_FILE = 5;
 	
-	private static BusDatabase busDatabase; //Only loads once. Avoid loading different instances of database.
+	private static BusDatabase busDatabase = new BusDatabase(); //Only loads once. Avoid loading different instances of database.
 	
 	private static int db_last_choice = -1;
 	
@@ -139,7 +139,7 @@ public class ArrivalManager {
 	 */
 	public ArrivalManager(String busno, String stop_code, int bound, int language, int loadFromWhere, Object classParent, boolean fromClassResources, boolean showLog) throws InvalidArrivalTargetException, CouldNotLoadDatabaseException{
 		//Check whether the database in the memory is null or not
-		if (busDatabase == null || busDatabase.getRoutesNames() == null || db_last_choice != loadFromWhere){
+		if (busDatabase == null || busDatabase.getRoutesNames() == null || (db_last_choice != -1 && db_last_choice != loadFromWhere)){
 			//If null, load the database
 			busDatabase = new BusDatabase();
 			
@@ -229,7 +229,7 @@ public class ArrivalManager {
 //Getters
 	
 	public static BusDatabase getBusDatabase(){
-		return busDatabase;
+		return busDatabase == null ? busDatabase = new BusDatabase() : busDatabase;
 	}
 	
 	public String getBusNo(){
@@ -402,7 +402,7 @@ public class ArrivalManager {
 				break;
 			}
 			String kmbApi = ETA_SERVER_URL + "?action=geteta&lang=" + language + "&route=" + route + "&bound=" + 
-							Integer.toString(bound) + "&stop=" + busStopCode + "&stop_seq=" + Integer.toString(stop_seq);
+							Integer.toString(bound + 1) + "&stop=" + busStopCode + "&stop_seq=" + Integer.toString(stop_seq);
 			URL url = new URL(kmbApi);
 	        URLConnection connection = url.openConnection();
 	        String line;

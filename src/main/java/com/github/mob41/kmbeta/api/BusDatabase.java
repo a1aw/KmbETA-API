@@ -35,6 +35,18 @@ public class BusDatabase {
 	
 	private boolean staticDatabase = false;
 	
+	protected BusDatabase(){
+		
+	}
+	
+	/**
+	 * Returns whether the database is loaded properly.
+	 * @return A boolean to determine
+	 */
+	public boolean isLoaded(){
+		return getRoutesNames() != null && getRoutes() != null;
+	}
+	
 	/**
 	 * Get the all the routes' names.<br>
 	 * <br>
