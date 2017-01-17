@@ -25,6 +25,9 @@
 
     <!-- Custom Fonts -->
     <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    
+    <!-- w3data include HTML JavaScript -->
+    <script src="js/w3data.js"></script>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -40,7 +43,7 @@
     <div id="wrapper">
 
         <!-- Navigation -->
-        <iframe src="nav.html" border="0">The navigation frame cannot be shown as your browser does not support iframe.</iframe>
+        <div w3-include-html="nav.html"></div>
 
         <div id="page-wrapper">
             <div class="row">
@@ -85,6 +88,10 @@
 
     </div>
     <!-- /#wrapper -->
+    
+    <script>
+    w3IncludeHTML();
+    </script>
 
     <!-- jQuery -->
     <script src="../vendor/jquery/jquery.min.js"></script>
