@@ -1,8 +1,6 @@
 # KmbETA-API [![Build Status](https://travis-ci.org/mob41/KmbETA-API.svg?branch=master)](https://travis-ci.org/mob41/KmbETA-API) [![Download KmbETA-API](https://img.shields.io/sourceforge/dt/kmbeta-api.svg)](https://sourceforge.net/projects/kmbeta-api/files/latest/download)
 
->:warning: The domain ```db.kmbeta.ml``` and ```kmbeta.ml``` was put down by the provider recently. And it is host by someone IDK. Do not trust the domain's content unless this notice have been removed. Issue #3
-> The database content can be downloaded from here: https://github.com/mob41/KmbETA-DB/blob/gh-pages/kmbeta_db.json
-> Currently does not support API on-line database download.
+>:information_source: The domain ```db.kmbeta.ml``` and ```kmbeta.ml``` is back right now.
 
 An API client for getting KMB bus's ETA.
 
