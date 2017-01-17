@@ -1,4 +1,4 @@
-## KmbETA-API pages
+# KmbETA-API pages
 
 This repository stores web-pages and JavaDoc, and hosts at https://www.kmbeta.ml/
 
