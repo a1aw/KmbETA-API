@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,7 +89,7 @@ public class BusDatabase {
 			String data = "";
 		    try {
 		    	BufferedReader reader = new BufferedReader(new 
-		                InputStreamReader(in));
+		                InputStreamReader(in, StandardCharsets.UTF_8));
 			    while ((line = reader.readLine()) != null) {
 			        data += line;
 			     }
@@ -414,12 +415,15 @@ public class BusDatabase {
 				throw new DatabaseNotLoadedException();
 			}
 			
+			System.out.println(boundIndex);
 			int index = -1;
 			try {
 				index = getRouteIndex(routeName);
 			} catch (DatabaseNotLoadedException e){
 				throw e;
 			}
+			
+			System.out.println("Route index: " + index);
 			
 			if (index == -1){
 				throw new NoSuchRouteException("No such route found: " + routeName);
@@ -430,6 +434,8 @@ public class BusDatabase {
 			
 			for (BusStop stop : bound.getList()){
 				if (stop.getStopCode().equals(stopcode)){
+					System.out.println("stopcode: " + stop.getStopCode());
+					System.out.println("stopseq: " + stop.getStopSeq());
 					return stop.getStopSeq();
 				}
 			}

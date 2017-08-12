@@ -97,18 +97,28 @@ public class ServerTime {
 	public static String getServerTime(){
 		try {
 			String datafeedurl = ArrivalManager.ETA_DATAFEED_SERVER_URL + "GetData.ashx?type=Server_T";
+			System.out.println(datafeedurl);
+			
 			URL url = new URL(datafeedurl);
+			
 			URLConnection connection = url.openConnection();
 			String line;
+			
 			StringBuilder builder = new StringBuilder();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			while((line = reader.readLine()) != null) {
 				builder.append(line);
 			}
+			
 			JSONArray kmbJson = new JSONArray(builder.toString());
+			
+			System.out.println(kmbJson.toString());
 			String datetime = (String) kmbJson.getJSONObject(0).get("stime");
+			
+			System.out.println(datetime);
 			return datetime;
 		} catch (Exception e){
+			e.printStackTrace();
 			return null;
 		}
 	}

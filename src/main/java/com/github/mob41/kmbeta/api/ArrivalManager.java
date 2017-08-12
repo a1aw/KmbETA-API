@@ -18,7 +18,7 @@ public class ArrivalManager {
 	
 	public static final String lastdeparted_msg = "The last bus has departed from this bus stop";
 	
-	public static final String ETA_SERVER_URL = "http://etav2.kmb.hk/";
+	public static final String ETA_SERVER_URL = "http://etav3.kmb.hk/";
 	
 	public static final String ETA_DATAFEED_SERVER_URL = "http://etadatafeed.kmb.hk:1933/";
 	
@@ -32,7 +32,7 @@ public class ArrivalManager {
 	
 	public static final int DB_LOAD_FROM_FILE = 5;
 	
-	private static BusDatabase busDatabase = new BusDatabase(); //Only loads once. Avoid loading different instances of database.
+	private static BusDatabase busDatabase; //Only loads once. Avoid loading different instances of database.
 	
 	private static int db_last_choice = -1;
 	
@@ -222,6 +222,7 @@ public class ArrivalManager {
 	public JSONObject fetchNewData(){
 		data = getETAdata(busno, stop_code, lang, bound, stop_seq);
 		srvt = new ServerTime();
+		System.out.println("srvt: " + srvt.getRawServerTime());
 		arrt = new ArrivalTime(data);
 		return data;
 	}
@@ -266,11 +267,12 @@ public class ArrivalManager {
 	 * Get remaining arrival minute formatted<br>
 	 * <br>
 	 * Returns a string with this format:<br>
-	 * <b>RR min(s)</b><br>
+	 * <b>RR m</b><br>
 	 * which RR is the remaining time.<br>
 	 * <br>
 	 * Different cases to return another string:<br>
-	 * <b>---</b>: If <code>srvhr</code>, <code>srvmin</code>, <code>arrhr</code>, <code>arrmin</code> is -1<br>
+	 * <b>NoSrvTime</b>: If <code>srvhr</code>, <code>srvmin</code> is -1<br>
+	 * <b>NoArrTime</b>: If <code>arrhr</code>, <code>arrmin</code> is -1<br>
 	 * <b>Arrived</b>: If <code>remainMin</code> smaller or equal to 0
 	 * @return A String with the format mentioned above
 	 */
@@ -280,9 +282,12 @@ public class ArrivalManager {
 		int arrhr = arrt.getArrivalHour();
 		int arrmin = arrt.getArrivalMin();
 		int remainMin = 0;
-		
-		if (srvhr == -1 || srvmin == -1 || arrhr == -1 || arrmin == -1){
-			return "Invalid";
+
+		System.out.println("srvhr: " + srvhr + " srvmin: " + srvmin + " arrhr: " + arrhr + " arrmin: " + arrmin);
+		if (srvhr == -1 || srvmin == -1){
+			return "NoSrvTime";
+		} else if (arrhr == -1 || arrmin == -1){
+			return "NoArrTime";
 		} else if (arrhr == -3 || arrmin == -3){
 			return "End";
 		}
@@ -299,7 +304,7 @@ public class ArrivalManager {
 		if (remainMin <= 0){
 			output = "Arrived";
 		} else {
-			output = remainMin + " min(s)";
+			output = remainMin + " m";
 		}
 		return output;
 	}
@@ -403,6 +408,7 @@ public class ArrivalManager {
 			}
 			String kmbApi = ETA_SERVER_URL + "?action=geteta&lang=" + language + "&route=" + route + "&bound=" + 
 							Integer.toString(bound + 1) + "&stop=" + busStopCode + "&stop_seq=" + Integer.toString(stop_seq);
+			//System.out.println("URL: " + kmbApi);
 			URL url = new URL(kmbApi);
 	        URLConnection connection = url.openConnection();
 	        String line;
@@ -411,6 +417,7 @@ public class ArrivalManager {
 	        while((line = reader.readLine()) != null) {
 	            builder.append(line);
 	        }
+	        //System.out.println(builder.toString());
 			JSONObject kmbJson = new JSONObject(builder.toString());
 			return kmbJson;
 		} catch (Exception e){
