@@ -1,8 +1,8 @@
 /**
  * KmbETA JavaScript Base File
  */
-const ETA_SERVER_URL = "http://etav3.kmb.hk/";
-const ETA_DATAFEED_SERVER_URL = "http://etadatafeed.kmb.hk:1933/";
+const ETA_SERVER_URL = "https://api.kmbeta.ml/api_v3.php";
+const ETA_DATAFEED_SERVER_URL = "https://api.kmbeta.ml/datafeed_v3.php";
 
 var ArrivalManager = function(route, bound, stopCode, lang, stopSeq){
 	this.route = route;
