@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>KmbETA-API</title>
+    <title>KmbETA</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -83,6 +83,30 @@
                 </div>
             </div>
             <!-- /.row -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                        	<i class="fa fa-info-circle"></i> 
+							JS API Test
+                        </div>
+                        <div class="panel-body">
+						    This is only a test to the JS API.
+							
+							<input type="button" class="btn btn-success" onclick="updateRoutes()" value="update routes"/>
+							<div class="form-group">
+							    <label>Route:</label>
+							    <select id="routes" onchange="updateBounds()" class="form-control">
+								
+								</select>
+							</div>
+                        </div>
+                        <div class="panel-footer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.row -->
         </div>
         <!-- /#page-wrapper -->
 
@@ -91,6 +115,17 @@
     
     <script>
     w3IncludeHTML();
+	
+	var db = new Database();
+	
+	function updateRoutes(){
+	    $("#routes").html("");
+		var out = [];
+		for (var i = 0; i < db.db.routes.length; i++){
+		    out.push("<option value=\"" + i + "\">" + db.db.routes[i] + "</option>");
+		}
+		$("#routes").html(out.join(''));
+	}
     </script>
 
     <!-- jQuery -->
@@ -109,6 +144,8 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="../dist/js/sb-admin-2.js"></script>
+	
+	<script src="https://raw.githubusercontent.com/mob41/KmbETA-JS-API/master/KmbETA.js"></script>
     
     <a href="https://github.com/mob41/KmbETA-API"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
 
