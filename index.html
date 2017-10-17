@@ -162,23 +162,24 @@
 	}
 	
 	function updateBounds(){
-	    var index = parseInt($("#routes").val());
+	    var ri = parseInt($("#routes").val());
 		
 	    $("#bounds").html("");
 		var out = [];
-		for (var i = 0; i < db.db.buses[index].bounds.length; i++){
+		for (var i = 0; i < db.db.buses[ri].bounds.length; i++){
 		    out.push("<option value=\"" + i + "\">" + i + "</option>");
 		}
 		$("#bounds").html(out.join(''));
 	}
 	
 	function updateStops(){
-	    var index = parseInt($("#bounds").val());
+	    var ri = parseInt($("#routes").val());
+	    var bi = parseInt($("#bounds").val());
 		
 	    $("#stops").html("");
 		var out = [];
-		for (var i = 0; i < db.db.buses[index].bounds[index].stops.length; i++){
-		    out.push("<option value=\"" + i + "\">[" + i + "] " + db.db.buses[index].bounds[index].stops[i].stopname_eng + " (" + db.db.buses[index].bounds[index].stops[i].stopcode + ")</option>");
+		for (var i = 0; i < db.db.buses[ri].bounds[bi].stops.length; i++){
+		    out.push("<option value=\"" + i + "\">[" + i + "] " + db.db.buses[ri].bounds[bi].stops[i].stopname_eng + " (" + db.db.buses[ri].bounds[bi].stops[i].stopcode + ")</option>");
 		}
 		$("#stops").html(out.join(''));
 	}
