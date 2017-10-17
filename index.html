@@ -190,7 +190,7 @@
 	    var si = parseInt($("#stops").val());
 		
 		$("#eta").html("Fetching...");
-		var am = new ArrivalManager(db.db.buses[ri].name, (bi + 1), db.db.buses[ri].bounds[bi].stops[si].stopcode, 0, si);
+		var am = new ArrivalManager(db.db.buses[ri].name, bi, db.db.buses[ri].bounds[bi].stops[si].stopcode, 0, si);
 		am.getEtaData().done(function(){
 			$("#eta").html(JSON.stringify(am.etaData));
 		});
