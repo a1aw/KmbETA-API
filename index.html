@@ -100,6 +100,19 @@
 								
 								</select>
 							</div>
+							<div class="form-group">
+							    <label>Bounds:</label>
+							    <select id="bounds" onchange="updateStops()" class="form-control">
+								
+								</select>
+							</div>
+							<div class="form-group">
+							    <label>Stops:</label>
+							    <select id="stops" onchange="updateEta()" class="form-control">
+								
+								</select>
+							</div>
+							<p id="eta">select route,bound,stop for eta</p>
                         </div>
                         <div class="panel-footer">
                         </div>
@@ -146,6 +159,41 @@
 		    out.push("<option value=\"" + i + "\">" + db.db.routes[i] + "</option>");
 		}
 		$("#routes").html(out.join(''));
+	}
+	
+	function updateBounds(){
+	    var index = parseInt($("#routes").val());
+		
+	    $("#bounds").html("");
+		var out = [];
+		for (var i = 0; i < db.db.routes[index].bounds.length; i++){
+		    out.push("<option value=\"" + i + "\">" + i + "</option>");
+		}
+		$("#bounds").html(out.join(''));
+	}
+	
+	function updateStops(){
+	    var index = parseInt($("#bounds").val());
+		
+	    $("#stops").html("");
+		var out = [];
+		for (var i = 0; i < db.db.routes[index].bounds[index].stops.length; i++){
+		    out.push("<option value=\"" + i + "\">[" + i + "] " + db.db.routes[index].bounds[index].stops[i].stopname_eng + " (" + db.db.routes[index].bounds[index].stops[i].stopcode + ")</option>");
+		}
+		$("#stops").html(out.join(''));
+	}
+	
+	function updateEta(){
+	    var ri = parseInt($("#routes").val());
+	    var bi = parseInt($("#bounds").val());
+	    var si = parseInt($("#stops").val());
+		
+		var am = new ArrivalManager(db.db.routes[ri].name, (bi + 1) db.db.routes[ri].bounds[bi].stops[si].stopcode, 0, si);
+		am.getEtaData();
+		while (am.etaData == null){
+		    ;;
+		}
+		$("#eta").html(am.etaData);
 	}
     </script>
 </body>
