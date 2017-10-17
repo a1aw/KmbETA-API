@@ -166,7 +166,7 @@
 		
 	    $("#bounds").html("");
 		var out = [];
-		for (var i = 0; i < db.db.routes[index].bounds.length; i++){
+		for (var i = 0; i < db.db.buses[index].bounds.length; i++){
 		    out.push("<option value=\"" + i + "\">" + i + "</option>");
 		}
 		$("#bounds").html(out.join(''));
@@ -177,8 +177,8 @@
 		
 	    $("#stops").html("");
 		var out = [];
-		for (var i = 0; i < db.db.routes[index].bounds[index].stops.length; i++){
-		    out.push("<option value=\"" + i + "\">[" + i + "] " + db.db.routes[index].bounds[index].stops[i].stopname_eng + " (" + db.db.routes[index].bounds[index].stops[i].stopcode + ")</option>");
+		for (var i = 0; i < db.db.buses[index].bounds[index].stops.length; i++){
+		    out.push("<option value=\"" + i + "\">[" + i + "] " + db.db.buses[index].bounds[index].stops[i].stopname_eng + " (" + db.db.buses[index].bounds[index].stops[i].stopcode + ")</option>");
 		}
 		$("#stops").html(out.join(''));
 	}
@@ -188,7 +188,7 @@
 	    var bi = parseInt($("#bounds").val());
 	    var si = parseInt($("#stops").val());
 		
-		var am = new ArrivalManager(db.db.routes[ri].name, (bi + 1), db.db.routes[ri].bounds[bi].stops[si].stopcode, 0, si);
+		var am = new ArrivalManager(db.db.buses[ri].name, (bi + 1), db.db.buses[ri].bounds[bi].stops[si].stopcode, 0, si);
 		am.getEtaData();
 		while (am.etaData == null){
 		    ;;
