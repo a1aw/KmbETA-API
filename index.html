@@ -190,9 +190,6 @@
 		
 		var am = new ArrivalManager(db.db.buses[ri].name, (bi + 1), db.db.buses[ri].bounds[bi].stops[si].stopcode, 0, si);
 		am.getEtaData();
-		while (am.etaData == null){
-		    ;;
-		}
 		$("#eta").html(am.etaData);
 	}
     </script>
