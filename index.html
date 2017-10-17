@@ -188,9 +188,11 @@
 	    var bi = parseInt($("#bounds").val());
 	    var si = parseInt($("#stops").val());
 		
+		$("#eta").html("Fetching...");
 		var am = new ArrivalManager(db.db.buses[ri].name, (bi + 1), db.db.buses[ri].bounds[bi].stops[si].stopcode, 0, si);
-		am.getEtaData();
-		$("#eta").html(am.etaData);
+		am.getEtaData().done(function(){
+			$("#eta").html(am.etaData);
+		});
 	}
     </script>
 </body>
