@@ -188,7 +188,7 @@
 	    var bi = parseInt($("#bounds").val());
 	    var si = parseInt($("#stops").val());
 		
-		var am = new ArrivalManager(db.db.routes[ri].name, (bi + 1) db.db.routes[ri].bounds[bi].stops[si].stopcode, 0, si);
+		var am = new ArrivalManager(db.db.routes[ri].name, (bi + 1), db.db.routes[ri].bounds[bi].stops[si].stopcode, 0, si);
 		am.getEtaData();
 		while (am.etaData == null){
 		    ;;
