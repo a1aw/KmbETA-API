@@ -21,7 +21,7 @@ ArrivalManager.prototype.getEtaData = function(){
 		"&stop=" + this.stopCode +
 		"&stop_seq=" + this.stopSeq;
 		
-	$.ajax({
+	return $.ajax({
 		url:  url,
 		dataType: "json",
 		cache: false,
