@@ -192,7 +192,7 @@
 		$("#eta").html("Fetching...");
 		var am = new ArrivalManager(db.db.buses[ri].name, (bi + 1), db.db.buses[ri].bounds[bi].stops[si].stopcode, 0, si);
 		am.getEtaData().done(function(){
-			$("#eta").html(am.etaData.toString());
+			$("#eta").html(JSON.stringify(am.etaData));
 		});
 	}
     </script>
