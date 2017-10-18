@@ -8,6 +8,7 @@ var locAccessCheckTimerId;
 var currLocUptTimerId;
 var currLocMarker;
 var map;
+var kmbDb;
 
 function initMap(){
 	map = new google.maps.Map(document.getElementById('map'), {
@@ -33,6 +34,8 @@ function initMap(){
 			map.setCenter(pos);
 			map.setZoom(16);
 			currLocUptTimerId = setInterval(function(){uptCurrLocMarker()}, 1000);
+			
+			kmbEtaLoadDb();
 		}, function(){
 		    $("#waitMapModal").modal('hide');
 	        $("#noMapModal").modal({backdrop: 'static', keyboard: false});
@@ -40,6 +43,34 @@ function initMap(){
 	} else {
 	    $("#noMapModal").modal({backdrop: 'static', keyboard: false});
 	}
+}
+
+function kmbEtaLoadDb(){
+    kmbDb = new Database();
+	$("#loadDbPb").attr("aria-valuenow", "0");
+	$("#loadDbPb").attr("style", "width: 0%");
+	$("#loadDbPbText").html("0% Complete");
+	$("#loadDbModal").modal({backdrop: 'static', keyboard: false});
+	Database.prototype.loadProgressHandler = function(p){
+		p = p * 100;
+	    $("#loadDbPb").attr("aria-valuenow", p);
+	    $("#loadDbPb").attr("style", "width: " + p + "%");
+	    $(".loadDbPbText").html(p + "% Complete");
+	};
+	var ajax = kmbDb.loadWebDb();
+	ajax.done(function(){
+	    $("#loadDbModal").modal('hide');
+	});
+}
+
+function distance(lat1, lon1, lat2, lon2) {
+  var p = 0.017453292519943295;    // Math.PI / 180
+  var c = Math.cos;
+  var a = 0.5 - c((lat2 - lat1) * p)/2 + 
+          c(lat1 * p) * c(lat2 * p) * 
+          (1 - c((lon2 - lon1) * p))/2;
+
+  return 12742 * Math.asin(Math.sqrt(a)); // 2 * R; R = 6371 km
 }
 
 function checkLocAccessPerm(){
