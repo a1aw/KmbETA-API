@@ -4,6 +4,7 @@ $(document).ready(function(){
 	}
 });
 
+var locAccessCheckTimerId;
 var currLocUptTimerId;
 var currLocMarker;
 var map;
@@ -15,9 +16,10 @@ function initMap(){
     });
 
 	//$("#waitMapModal").modal('hide');
+	$("#waitMapModal").modal({backdrop: 'static', keyboard: false});
+	locAccessCheckTimerId = setInterval(function(){checkLocAccessPerm()}, 1000);
 	
 	if (navigator.geolocation){
-	    $("#waitMapModal").modal({backdrop: 'static', keyboard: false});
 		navigator.geolocation.getCurrentPosition(function(position){
 		    $("#waitMapModal").modal('hide');
 			
@@ -30,7 +32,7 @@ function initMap(){
 			
 			map.setCenter(pos);
 			map.setZoom(16);
-			setInterval(function(){uptCurrLocMarker()}, 1000);
+			currLocUptTimerId = setInterval(function(){uptCurrLocMarker()}, 1000);
 		}, function(){
 		    $("#waitMapModal").modal('hide');
 	        $("#noMapModal").modal({backdrop: 'static', keyboard: false});
@@ -38,6 +40,13 @@ function initMap(){
 	} else {
 	    $("#noMapModal").modal({backdrop: 'static', keyboard: false});
 	}
+}
+
+function checkLocAccessPerm(){
+    navigator.geolocation.getCurrentPosition(function(position){
+		$("#waitMapModal").modal('hide');
+		clearInterval(locAccessCheckTimerId);
+	}, function(){});
 }
 
 function uptCurrLocMarker(){
