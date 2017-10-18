@@ -76,12 +76,14 @@ function listAllRoutesInRange(range){
 	for (var i = 0; i < rr.length; i++){
 	    var index = findRouteIndex(rr[i].name);
         if (index != -1){
+			console.log("Listing " + rr[i].name);
 			buildRouteLinesAndMarkers(index, 0);
         } else {
             console.log("Error: Could not find route index for " + rr[i].name);    
 			alert("Error: Could not find route index for " + rr[i].name + "\nPlease report to GitHub issue tracker!");   
 		}		
 	}
+	console.log("Listed all");
 }
 
 function getRandomColor() {
@@ -100,20 +102,24 @@ function buildRouteLinesAndMarkers(routeIndex, boundIndex){
 	
 	for (var i = 0; i < routeStops.length; i++){
 	    coord.push({
-		    lat: parseInt(routeStops.lat),
-            lng: parseInt(routeStops.lng)			
+		    lat: parseFloat(routeStops.lat),
+            lng: parseFloat(routeStops.lng)			
 		});	
 	}
+	console.log(kmbDb.db.buses[routeIndex]);
+	console.log(routeIndex);
+	console.log(coord);
 	
 	var color = getRandomColor();
 	var path = new google.maps.Polyline({
 		path: coord,
 		geodesic: true,
 		strokeColor: color,
-		strokeOpacity: 0.7,
-		strokeWeight: 4
+		strokeOpacity: 1,
+		strokeWeight: 2
 	});
 	
+
 	path.setMap(map);
 	routePaths.push(path);
 }
