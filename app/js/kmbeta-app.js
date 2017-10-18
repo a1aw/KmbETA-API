@@ -16,8 +16,8 @@ function initMap(){
 
 	//$("#waitMapModal").modal('hide');
 	
-	$("#waitMapModal").modal({backdrop: 'static', keyboard: false});
 	if (navigator.geolocation){
+	    $("#waitMapModal").modal({backdrop: 'static', keyboard: false});
 		navigator.geolocation.getCurrentPosition(function(position){
 		    $("#waitMapModal").modal('hide');
 			
@@ -36,7 +36,6 @@ function initMap(){
 	        $("#noMapModal").modal({backdrop: 'static', keyboard: false});
 		});
 	} else {
-		$("#waitMapModal").modal('hide');
 	    $("#noMapModal").modal({backdrop: 'static', keyboard: false});
 	}
 }
