@@ -55,52 +55,52 @@ ArrivalTime.prototype.getResponseByIndex = function(index){
 }
 
 ArrivalTime.prototype.getHr = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
 	return parseInt(resp.substring(0,2));
 }
 
 ArrivalTime.prototype.getMin = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
 	return parseInt(resps.substring(3,5));
 }
 
 ArrivalTime.prototype.isScheduledTime = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
 	return resp.ei.equals("Y");
 }
 
 ArrivalTime.prototype.isWifi = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
 	return resp.wifi.equals("Y");
 }
 
 //Unknown W
 ArrivalTime.prototype.isW = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
 	return resp.w.equals("Y");
 }
 
 //Unknown OL
 ArrivalTime.prototype.isOl = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
 	return resp.ol.equals("Y");
 }
 
 //Unknown EOT
 ArrivalTime.prototype.getEot = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
 	return resp.eot;
 }
 
 //Unknown Ex
 ArrivalTime.prototype.getEx = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
 	return resp.ex;
 }
 
 //Unknown bus_service_type
 ArrivalTime.prototype.getBusServiceType = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
 	return resp.bus_service_type;
 }
 
@@ -121,8 +121,21 @@ var ServerTime = function(){
 	});
 }
 
-var Database = function(){
-	$.ajax({
+var Database = function(){}
+
+Database.prototype.loadWebDb = function(){
+    return $.ajax({
+		xhr: function(){
+			var xhr = new window.XMLHttpRequest();
+			xhr.addEventListener("progress", function(evt){
+				if (evt.lengthComputable){
+				    var p = evt.loaded / evt.total;
+                    Database.prototype.loadProgressHandler(p);
+                    console.log("Loaded DB: " + (p * 100) + "%");					
+				}
+			}, false);
+			return xhr;
+		},
 		url: "https://db.kmbeta.ml/kmbeta_db.b64",
 		cache: false,
 		dataType: "text",
@@ -135,5 +148,5 @@ var Database = function(){
 			console.log(err);
 			console.log(err1); 
 		}
-	});
+	});	
 }

@@ -43,64 +43,94 @@ var ArrivalTime = function(etaData, index){
 }
 
 ArrivalTime.prototype.getNumberOfIndex = function(){
-	return etaData.response.length;
+	if (ArrivalTime.prototype.etaData.response == null){
+	    return -1;	
+	}
+	return ArrivalTime.prototype.etaData.response.length;
 }
 
 ArrivalTime.prototype.getResponseByIndex = function(index){
-	var max = getNumberOfIndex();
+	var max = ArrivalTime.prototype.getNumberOfIndex();
 	if (index < max || index >= max){
 		return null;
 	}
-	return etaData.response[index];
+	return ArrivalTime.prototype.etaData.response[index];
 }
 
 ArrivalTime.prototype.getHr = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
+	if (resp == null){
+	    return -1;	
+	}
 	return parseInt(resp.substring(0,2));
 }
 
 ArrivalTime.prototype.getMin = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
+	if (resp == null){
+	    return -1;	
+	}
 	return parseInt(resps.substring(3,5));
 }
 
 ArrivalTime.prototype.isScheduledTime = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
+	if (resp == null){
+	    return -1;	
+	}
 	return resp.ei.equals("Y");
 }
 
 ArrivalTime.prototype.isWifi = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
+	if (resp == null){
+	    return -1;	
+	}
 	return resp.wifi.equals("Y");
 }
 
 //Unknown W
 ArrivalTime.prototype.isW = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
+	if (resp == null){
+	    return -1;	
+	}
 	return resp.w.equals("Y");
 }
 
 //Unknown OL
 ArrivalTime.prototype.isOl = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
+	if (resp == null){
+	    return -1;	
+	}
 	return resp.ol.equals("Y");
 }
 
 //Unknown EOT
 ArrivalTime.prototype.getEot = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
+	if (resp == null){
+	    return -1;	
+	}
 	return resp.eot;
 }
 
 //Unknown Ex
 ArrivalTime.prototype.getEx = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
+	if (resp == null){
+	    return -1;	
+	}
 	return resp.ex;
 }
 
 //Unknown bus_service_type
 ArrivalTime.prototype.getBusServiceType = function(index){
-	var resp = getResponseByIndex(index);
+	var resp = ArrivalTime.prototype.getResponseByIndex(index);
+	if (resp == null){
+	    return -1;	
+	}
 	return resp.bus_service_type;
 }
 

@@ -11,9 +11,13 @@ var map;
 var kmbDb;
 var currPos;
 
+var selectedRoute;
+var selectedBound;
+var selectedStop;
+
 var routePathsMarkers = [];
 //var routeLines = [];
-//var routeMarkers = [];
+var routeMarkers = [];
 
 function initMap(){
 	map = new google.maps.Map(document.getElementById('map'), {
@@ -44,6 +48,11 @@ function initMap(){
 			map.setCenter(pos);
 			map.setZoom(16);
 			
+			map.addListener('center_changed', function(){
+				removeAllListRoutes();
+				recenterMarkers();
+			});
+			
 			currLocUptTimerId = setInterval(function(){uptCurrLocMarker()}, 1000);
 			
 			kmbEtaLoadDb();
@@ -71,12 +80,60 @@ function kmbEtaLoadDb(){
 	var ajax = kmbDb.loadWebDb();
 	ajax.done(function(){
 	    $("#loadDbModal").modal('hide');
-		listAllRoutesInRange(0.5);
+		recenterMarkers();
 	});
 }
 
-function listAllRoutesInRange(range){
-	var rr = findRoutesInRange(range);
+function recenterMarkers(){
+	if (selectedRoute != null && selectedStop != null){
+		selectRoute(selectedRoute, selectedBound, selectedStop);
+		return;
+	}
+	var lat = map.getCenter().lat();
+	var lng = map.getCenter().lng();
+	listAllStopsInRange({lat: lat, lng: lng}, 2);	
+}
+
+function selectRoute(route, bound, stopcode){
+	selectedRoute = route;
+	selectedStop = stopcode;
+	selectedBound = bound;
+    removeAllListRoutes();
+	
+	var i = findRouteIndex(route);
+	
+	if (i == -1){
+		return;
+	}
+	
+    buildRouteLinesAndMarkers(i, selectedBound);	
+}
+
+function deselectRoute(){
+    removeAllListRoutes();
+	selectedRoute = null;
+	selectedStop = null;
+	recenterMarkers();
+}
+
+function removeAllListRoutes(){
+    for (var i = 0; i < routePathsMarkers.length; i++){
+        routePathsMarkers[i].path.setMap(null);
+		for (var x = 0; x < routePathsMarkers[i].markers.length; x++){
+		    routePathsMarkers[i].markers[x].setMap(null);
+		}
+    }
+	routePathsMarkers = [];
+	
+    for (var i = 0; i < routeMarkers.length; i++){
+        routeMarkers[i].setMap(null);
+    }
+	routeMarkers = [];
+}
+
+function listAllRoutesInRange(pos, range){
+	console.log(pos);
+	var rr = findRoutesInRange(pos, range);
 	
 	for (var i = 0; i < rr.length; i++){
 	    var index = findRouteIndex(rr[i].name);
@@ -91,6 +148,87 @@ function listAllRoutesInRange(range){
 	console.log("Listed all");
 }
 
+function getRoutesByStop(stopcode){
+	var db = kmbDb.db.buses;
+	
+	var o = [];
+	for (var i = 0; i < db.length; i++){
+		var bounds = db[i].bounds;
+	    for (var x = 0; x < bounds.length; x++){
+		    var stops = bounds[x].stops;
+            for (var y = 0; y < stops.length; y++){
+                if (stops[y].stopcode === stopcode){
+					db[i].bound = x;
+				    o.push(db[i]);	
+				}
+            }			
+		}
+	}
+	return o;
+}
+
+function listAllStopsInRange(pos, range){
+	var sr = findStopsInRange(pos, range);
+	
+	for (var i = 0; i < sr.length; i++){
+		var lat = parseFloat(sr[i].lat);
+		var lng = parseFloat(sr[i].lng);
+		var coord = {
+			lat, lng
+		};
+		var m = new google.maps.Marker({
+			position: coord,
+			map: map
+		});
+		
+		m.addListener('click', function(){
+			var d = getStopInfo(this.getPosition().lat(), this.getPosition().lng());
+	        var iw = new google.maps.InfoWindow({
+		        content: d
+	        });
+	        iw.open(map, this);
+		});
+		routeMarkers.push(m);
+	}
+}
+
+function getStopInfo(lat, lng){
+	var stop = getStopByLatLng(lat, lng);
+	var cs = "<div id=\"content\"><h3>" + stop.stopname_eng + "</h3><p>Stop-Code: " + stop.stopcode + "</p><p>Buses: ";
+	
+	var ss = getRoutesByStop(stop.stopcode);
+	
+	for (var x = 0; x < ss.length; x++){
+	    cs += "<a href=\"javascript:selectRoute('" + ss[x].name + "', " + stop.bound + ", '" + stop.stopcode + "')\">" + ss[x].name + "</a>";
+        if (x != ss.length - 1){
+			cs += ", ";
+        }			
+	}
+	
+	cs += "</p></div>";
+	
+	return cs;
+}
+
+function getRouteStopEtaInfo(lat, lng){
+	var stop = getStopByLatLng(lat, lng);
+	var gid = "route_" + selectedRoute + "_" + stop.bound + "_" + stop.stopcode + "_eta";
+	
+	var cs = "<div id=\"content\"><h3>" + stop.stopname_eng + "</h3><p>Route: " + selectedRoute + "</p><p>ETA: <span id=\"" + gid + "\">Getting ETA data...</span></p><p><a href=\"javascript:deselectRoute()\">Deselect Route</a></p></div>";
+	
+	console.log(stop.bound);
+	var am = new ArrivalManager(selectedRoute, stop.bound , stop.stopcode, 0, stop.stopseq);
+	
+	am.getEtaData().done(function(){
+		console.log(am.etaData);
+		//var at = new ArrivalTime(am.etaData, 0);
+		//$("#" + gid).html(at.getHr() + ":" + at.getMin());
+		$("#" + gid).html(JSON.stringify(am.etaData));
+	});
+	
+	return cs;
+}
+
 function getRandomColor() {
   var letters = '0123456789ABCDEF';
   var color = '#';
@@ -103,6 +241,9 @@ function getRandomColor() {
 function buildRouteLinesAndMarkers(routeIndex, boundIndex){
 	var coord = [];
 	
+	console.log("RI: " + routeIndex + " BI: " + boundIndex);
+	console.log(kmbDb.db.buses[routeIndex]);
+	console.log(kmbDb.db.buses[routeIndex].bounds[boundIndex]);
 	var routeStops = kmbDb.db.buses[routeIndex].bounds[boundIndex].stops;
 	
 	//Build COORDS
@@ -134,6 +275,13 @@ function buildRouteLinesAndMarkers(routeIndex, boundIndex){
 			map: map,
 			label: label
 		});
+		m.addListener('click', function(){
+			var d = getRouteStopEtaInfo(this.getPosition().lat(), this.getPosition().lng());
+	        var iw = new google.maps.InfoWindow({
+		        content: d
+	        });
+	        iw.open(map, this);
+		});
 		markers.push(m);
 	}
 
@@ -153,8 +301,8 @@ function findRouteIndex(routeName){
     return -1;	
 }
 
-function findRoutesInRange(range){
-    var sr = findStopsInRange(range);
+function findRoutesInRange(pos, range){
+    var sr = findStopsInRange(pos, range);
 	
     var i;
 	var x;
@@ -178,7 +326,7 @@ function findRoutesInRange(range){
     return o;	
 }
 
-function findStopsInRange(range){
+function findStopsInRange(pos, range){
     var db = kmbDb.db.buses;
     var i;
 	var x;
@@ -189,7 +337,7 @@ function findStopsInRange(range){
 		for (x = 0; x < bounds.length; x++){
 		    var stops = bounds[x].stops;
             for (y = 0; y < stops.length; y++){
-                var d = distance(currPos.lat, currPos.lng, stops[y].lat, stops[y].lng);
+                var d = distance(pos.lat, pos.lng, stops[y].lat, stops[y].lng);
 				if (d <= range && !isStopCodeInArray(o, stops[y].stopcode)){
 					o.push(stops[y]);
 				}
@@ -197,6 +345,42 @@ function findStopsInRange(range){
 		}
     }
 	return o;
+}
+
+function getStopByLatLng(lat, lng){
+	console.log("Lat:");
+	console.log(lat);
+	console.log("Long:");
+	console.log(lng);
+    var db = kmbDb.db.buses;
+    var i;
+	var x;
+	var y;
+	var o = [];
+    for (i = 0; i < db.length; i++){
+		var bounds = db[i].bounds;
+		for (x = 0; x < bounds.length; x++){
+		    var stops = bounds[x].stops;
+            for (y = 0; y < stops.length; y++){
+                if (isDiffNotBigger(stops[y].lat, lat, 0.00001) &&
+				isDiffNotBigger(stops[y].lng, lng, 0.00001)){
+					stops[y].bound = x;
+					console.log("Found");
+				    return stops[y];	
+				}
+            }			
+		}
+    }
+	console.log("Not found");
+	return null;
+}
+
+function isDiffNotBigger(val0, val1, big){
+    if (val0 > val1){
+	    return (val0 - val1) < big;	
+	} else {
+		return (val1 - val0) < big;
+	}
 }
 
 function isRouteNameInArray(array, name){
