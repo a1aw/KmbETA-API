@@ -102,8 +102,8 @@ function buildRouteLinesAndMarkers(routeIndex, boundIndex){
 	
 	for (var i = 0; i < routeStops.length; i++){
 	    coord.push({
-		    lat: parseFloat(routeStops.lat),
-            lng: parseFloat(routeStops.lng)			
+		    lat: parseFloat(routeStops[i].lat),
+            lng: parseFloat(routeStops[i].lng)			
 		});	
 	}
 	console.log(kmbDb.db.buses[routeIndex]);
