@@ -9,4 +9,17 @@ function initMap(){
     });
 
 	//$("#waitMapModal").modal('hide');
+	
+	if (navigator.geolocation){
+		navigator.geolocation.getCurrentPosition(function(pos){
+			
+		    $("#waitMapModal").modal('hide');
+		}, function(){
+		    $("#waitMapModal").modal('hide');
+	        $("#noMapModal").modal({backdrop: 'static', keyboard: false});
+		});
+	} else {
+		$("#waitMapModal").modal('hide');
+	    $("#noMapModal").modal({backdrop: 'static', keyboard: false});
+	}
 }
