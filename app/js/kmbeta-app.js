@@ -423,8 +423,7 @@ function uptCurrLocMarker(){
 		var pos = {
 		  lat: position.coords.latitude,
 		  lng: position.coords.longitude
-		}
-		pos = {lat: 22.3305779, lng: 114.2064588}
+		};
 		currPos = pos;
 		currLocMarker.setPosition(pos);
 	}, function(){
