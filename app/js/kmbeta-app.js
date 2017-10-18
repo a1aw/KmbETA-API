@@ -11,7 +11,7 @@ var map;
 var kmbDb;
 var currPos;
 
-var routePaths = [];
+var routePathsMarkers = [];
 //var routeLines = [];
 //var routeMarkers = [];
 
@@ -35,10 +35,15 @@ function initMap(){
 			}
 			currPos = pos;
 			
-			currLocMarker = new google.maps.Marker({position: pos, map: map});
+			currLocMarker = new google.maps.Marker({
+				position: pos,
+				map: map,
+				icon: "human.png"
+			});
 			
 			map.setCenter(pos);
 			map.setZoom(16);
+			
 			currLocUptTimerId = setInterval(function(){uptCurrLocMarker()}, 1000);
 			
 			kmbEtaLoadDb();
@@ -66,7 +71,7 @@ function kmbEtaLoadDb(){
 	var ajax = kmbDb.loadWebDb();
 	ajax.done(function(){
 	    $("#loadDbModal").modal('hide');
-		listAllRoutesInRange(1);
+		listAllRoutesInRange(0.5);
 	});
 }
 
@@ -100,28 +105,43 @@ function buildRouteLinesAndMarkers(routeIndex, boundIndex){
 	
 	var routeStops = kmbDb.db.buses[routeIndex].bounds[boundIndex].stops;
 	
+	//Build COORDS
 	for (var i = 0; i < routeStops.length; i++){
 	    coord.push({
 		    lat: parseFloat(routeStops[i].lat),
             lng: parseFloat(routeStops[i].lng)			
 		});	
 	}
-	console.log(kmbDb.db.buses[routeIndex]);
-	console.log(routeIndex);
-	console.log(coord);
 	
+	//Render polyline
 	var color = getRandomColor();
 	var path = new google.maps.Polyline({
 		path: coord,
 		geodesic: true,
 		strokeColor: color,
 		strokeOpacity: 1,
-		strokeWeight: 2
+		strokeWeight: 8
 	});
+	path.setMap(map);
 	
+	var markers = [];
+	
+	//Render markers
+	for (var i = 0; i < coord.length; i++){
+		var label = kmbDb.db.buses[routeIndex].name + ": " + (i + 1);
+		var m = new google.maps.Marker({
+			position: coord[i],
+			map: map,
+			label: label
+		});
+		markers.push(m);
+	}
 
 	path.setMap(map);
-	routePaths.push(path);
+	routePathsMarkers.push({
+		path: path,
+		markers: markers
+	});
 }
 
 function findRouteIndex(routeName){
@@ -220,6 +240,7 @@ function uptCurrLocMarker(){
 		  lat: position.coords.latitude,
 		  lng: position.coords.longitude
 		}
+		pos = {lat: 22.3305779, lng: 114.2064588}
 		currPos = pos;
 		currLocMarker.setPosition(pos);
 	}, function(){
