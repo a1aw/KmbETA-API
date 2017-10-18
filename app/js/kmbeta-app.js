@@ -194,7 +194,7 @@ function listAllStopsInRange(pos, range){
 
 function getStopInfo(lat, lng){
 	var stop = getStopByLatLng(lat, lng);
-	var cs = "<div id=\"content\"><h3>" + stop.stopname_eng + "</h3><p>Stop-Code: " + stop.stopcode + "</p><p>Buses: ";
+	var cs = "<div id=\"content\"><strong>" + stop.stopname_eng + "</strong><p>Stop-Code: " + stop.stopcode + "</p><p>Buses: ";
 	
 	var ss = getRoutesByStop(stop.stopcode);
 	
@@ -214,7 +214,7 @@ function getRouteStopEtaInfo(lat, lng){
 	var stop = getStopByLatLng(lat, lng);
 	var gid = "route_" + selectedRoute + "_" + stop.bound + "_" + stop.stopcode + "_eta";
 	
-	var cs = "<div id=\"content\"><h3>" + stop.stopname_eng + "</h3><p>Route: " + selectedRoute + "</p><p>ETA: <span id=\"" + gid + "\">Getting ETA data...</span></p><p><a href=\"javascript:deselectRoute()\">Deselect Route</a></p></div>";
+	var cs = "<div id=\"content\"><strong>" + stop.stopname_eng + "</strong><p>Route: " + selectedRoute + "</p><p>ETA: <span id=\"" + gid + "\">Getting ETA data...</span></p><p><a href=\"javascript:deselectRoute()\">Deselect Route</a></p></div>";
 	
 	console.log(stop.bound);
 	var am = new ArrivalManager(selectedRoute, stop.bound , stop.stopcode, 0, stop.stopseq);
