@@ -2,10 +2,17 @@ $(document).ready(function(){
 	if (!window.location.protocol.startsWith("https:") && !window.location.protocol.startsWith("file:")){
 		window.location = "https://www.kmbeta.ml/app/";
 	}
+	
+	$("#quickSelectBusRouteBtn").click(function(){
+		var val = $("#quickSelectBusRoute").val();
+		selectRoute(val, 1, null);
+		$("#homeModal").modal("hide");
+	});
 });
 
 var locAccessCheckTimerId;
 var currLocUptTimerId;
+var nearbyRoutesEtaUiUpdateTimerId;
 var currLocMarker;
 var map;
 var kmbDb;
@@ -18,6 +25,9 @@ var selectedStop;
 var routePathsMarkers = [];
 //var routeLines = [];
 var routeMarkers = [];
+
+var nearbyRoutes = [];
+var nearbyRoutesMgr = [];
 
 function initMap(){
 	map = new google.maps.Map(document.getElementById('map'), {
@@ -48,10 +58,10 @@ function initMap(){
 			map.setCenter(pos);
 			map.setZoom(16);
 			
-			map.addListener('center_changed', function(){
-				removeAllListRoutes();
-				recenterMarkers();
-			});
+			//map.addListener('center_changed', function(){
+			//	removeAllListRoutes();
+			//	recenterMarkers();
+			//});
 			
 			currLocUptTimerId = setInterval(function(){uptCurrLocMarker()}, 1000);
 			
@@ -79,9 +89,103 @@ function kmbEtaLoadDb(){
 	};
 	var ajax = kmbDb.loadWebDb();
 	ajax.done(function(){
-	    $("#loadDbModal").modal('hide');
+		setTimeout(function(){$("#loadDbModal").modal('hide');}, 1000);
+		$("#homeModal").modal({backdrop: 'static', keyboard: false});
 		recenterMarkers();
+		
+		var db = kmbDb.db.routes;
+		var node = $("#quickSelectBusRoute");
+		node.html("");
+		for (var i = 0; i < db.length; i++){
+		    $("#quickSelectBusRoute").append("<option>" + db[i] + "</option>");	
+		}
+		
+		updateNearbyStops();
 	});
+}
+
+function updateNearbyStops(){
+	var node = $("#nearbyStopsListGp");
+	var lat = map.getCenter().lat();
+	var lng = map.getCenter().lng();
+	var sr = searchNearbyStops({lat: lat, lng: lng});
+	
+	node.html("");
+	
+	nearbyRoutes = [];
+	for (var i = 0; i < sr.length; i++){
+		var r = getRoutesByStop(sr[i].stopcode);
+		for (var j = 0; j < r.length; j++){
+		    if (!isRouteNameInArray(nearbyRoutes, r[j].name)){
+			    var data = r[j];
+			    data.stopData = sr[i];
+			    nearbyRoutes.push(data);
+		    }	
+		}
+	}
+	
+	nearbyRoutesMgr = [];
+	for (var i = 0; i < nearbyRoutes.length; i++){
+	    node.append("<a href=\"#\" onclick=\"selectRoute('" + nearbyRoutes[i].name + "', " + nearbyRoutes[i].bound + ", '" + nearbyRoutes[i].stopData.stopcode + "'); $('#homeModal').modal('hide');\" class=\"list-group-item\"><h5 class=\"list-group-item-heading\">" + nearbyRoutes[i].name + "</h5><p class=\"list-group-item-text\" id=\"nearbyRouteEta_" + nearbyRoutes[i].stopData.stopcode + "_" + nearbyRoutes[i].name + "\">---</p><p class=\"list-group-item-text\">" + nearbyRoutes[i].stopData.stopname_eng + " (" + Math.ceil(nearbyRoutes[i].stopData.distance * 1000) + " m)</p></a>");
+		var v = new ArrivalManager(nearbyRoutes[i].name, nearbyRoutes[i].bound, nearbyRoutes[i].stopData.stopcode, "en", nearbyRoutes[i].stopseq);
+		v.getEtaData();
+		nearbyRoutesMgr.push(v);
+	}
+	
+	nearbyRoutesEtaUiUpdateTimerId = setInterval(function(){updateNearbyRoutesEtaUi()}, 5000);
+}
+
+function updateNearbyRoutesEtaUi(){
+    for (var i = 0; i < nearbyRoutesMgr.length; i++){
+		var n = nearbyRoutesMgr[i];
+		var at = new ArrivalTime(n.etaData);
+		
+		if (at.getNumberOfIndex() > 0){
+			console.log(at.getResponseByIndex(0));
+		    $("#nearbyRouteEta_" + n.stopCode + "_" + n.route).html(at.getResponseByIndex(0).t);	
+		} else {
+		    $("#nearbyRouteEta_" + n.stopCode + "_" + n.route).html("No Response");	
+		}
+    }	
+}
+
+function getStopSeq(route, bound, stopcode){
+	var db = kmbDb.db.buses;
+	
+	var index = findRouteIndex(route);
+	if (index == -1){
+	    return -1;	
+	}
+	
+	console.log(stopcode);
+	var stops = db[index].bounds[bound - 1].stops;
+	for (var i = 0; i < stops.length; i++){
+	    console.log(i + ": " + stops[i].stopcode + " compare " + stopcode + ": " + (stops[i].stopcode == stopcode));
+		if (stops[i].stopcode == stopcode){
+	        console.log(stops[i]);
+		    return i;	
+		}
+	}
+	return -1;
+}
+
+function searchNearbyStops(pos){
+    var node = $("#nearbyStopsListGp");
+	node.html("");
+	
+	var sr = findStopsInRange(pos, 0.5, true);
+	
+	sr.sort(function(a, b){
+		if (a.distance < b.distance){
+		    return -1;	
+		} else if (a.distance > b.distance){
+		    return 1;	
+		} else {
+		    return 0;	
+		}
+	});
+	
+	return sr;
 }
 
 function recenterMarkers(){
@@ -106,7 +210,10 @@ function selectRoute(route, bound, stopcode){
 		return;
 	}
 	
-    buildRouteLinesAndMarkers(i, selectedBound);	
+	var stopseq = getStopSeq(route, bound, stopcode);
+	console.log(stopseq);
+	
+    buildRouteLinesAndMarkers(i, selectedBound - 1, stopseq);	
 }
 
 function deselectRoute(){
@@ -114,6 +221,8 @@ function deselectRoute(){
 	selectedRoute = null;
 	selectedStop = null;
 	recenterMarkers();
+	
+	$("#homeModal").modal({backdrop: 'static', keyboard: false});
 }
 
 function removeAllListRoutes(){
@@ -159,6 +268,7 @@ function getRoutesByStop(stopcode){
             for (var y = 0; y < stops.length; y++){
                 if (stops[y].stopcode === stopcode){
 					db[i].bound = x;
+					db[i].stopseq = y;
 				    o.push(db[i]);	
 				}
             }			
@@ -214,16 +324,24 @@ function getRouteStopEtaInfo(lat, lng){
 	var stop = getStopByLatLng(lat, lng);
 	var gid = "route_" + selectedRoute + "_" + stop.bound + "_" + stop.stopcode + "_eta";
 	
-	var cs = "<div id=\"content\"><strong>" + stop.stopname_eng + "</strong><p>Route: " + selectedRoute + "</p><p>ETA: <span id=\"" + gid + "\">Getting ETA data...</span></p><p><a href=\"javascript:deselectRoute()\">Deselect Route</a></p></div>";
+	var cs = "<div id=\"content\"><strong>" + stop.stopname_eng + "</strong><p>Route: " + selectedRoute + "</p><p>Stop-Code: " + stop.stopcode +"</p><p>ETA: <span id=\"" + gid + "\">Getting ETA data...</span></p><p><a href=\"javascript:deselectRoute()\">Deselect Route</a></p></div>";
 	
 	console.log(stop.bound);
 	var am = new ArrivalManager(selectedRoute, stop.bound , stop.stopcode, 0, stop.stopseq);
 	
 	am.getEtaData().done(function(){
 		console.log(am.etaData);
-		//var at = new ArrivalTime(am.etaData, 0);
+		var at = new ArrivalTime(am.etaData, 0);
 		//$("#" + gid).html(at.getHr() + ":" + at.getMin());
-		$("#" + gid).html(JSON.stringify(am.etaData));
+		var n = $("#" + gid);
+		if (at.getNumberOfIndex() > 0){
+			n.html("");
+			for (var i = 0; i < at.getNumberOfIndex(); i++){
+			    n.append("<h4>" + at.getResponseByIndex(i).t + "</h4>");
+			}
+		} else {
+		    n.html("No Response Data");
+		}
 	});
 	
 	return cs;
@@ -238,7 +356,15 @@ function getRandomColor() {
   return color;
 }
 
-function buildRouteLinesAndMarkers(routeIndex, boundIndex){
+function showStopInfo(marker){
+    var d = getRouteStopEtaInfo(marker.getPosition().lat(), marker.getPosition().lng());
+	var iw = new google.maps.InfoWindow({
+		content: d
+	});
+	iw.open(map, marker);	
+}
+
+function buildRouteLinesAndMarkers(routeIndex, boundIndex, openInfoStopSeq){
 	var coord = [];
 	
 	console.log("RI: " + routeIndex + " BI: " + boundIndex);
@@ -275,13 +401,17 @@ function buildRouteLinesAndMarkers(routeIndex, boundIndex){
 			map: map,
 			label: label
 		});
+		
 		m.addListener('click', function(){
-			var d = getRouteStopEtaInfo(this.getPosition().lat(), this.getPosition().lng());
-	        var iw = new google.maps.InfoWindow({
-		        content: d
-	        });
-	        iw.open(map, this);
+			showStopInfo(this);
 		});
+		
+		if (openInfoStopSeq == i){
+		    showStopInfo(m);
+            map.setCenter(coord[i]);	
+            map.setZoom(18);			
+		}
+		
 		markers.push(m);
 	}
 
@@ -301,8 +431,13 @@ function findRouteIndex(routeName){
     return -1;	
 }
 
-function findRoutesInRange(pos, range){
-    var sr = findStopsInRange(pos, range);
+function findRoutesInRange(pos, range, customStops){
+	var sr;
+	if (customStops){
+		sr = customStops;
+	} else {
+        sr = findStopsInRange(pos, range);
+	}
 	
     var i;
 	var x;
@@ -326,7 +461,7 @@ function findRoutesInRange(pos, range){
     return o;	
 }
 
-function findStopsInRange(pos, range){
+function findStopsInRange(pos, range, includeDistance){
     var db = kmbDb.db.buses;
     var i;
 	var x;
@@ -339,7 +474,11 @@ function findStopsInRange(pos, range){
             for (y = 0; y < stops.length; y++){
                 var d = distance(pos.lat, pos.lng, stops[y].lat, stops[y].lng);
 				if (d <= range && !isStopCodeInArray(o, stops[y].stopcode)){
-					o.push(stops[y]);
+					var data = stops[y];
+					if (includeDistance){
+					    data.distance = d;	
+					}
+					o.push(data);
 				}
             }			
 		}
@@ -399,6 +538,15 @@ function isStopCodeInArray(array, stopcode){
         }		
 	}
 	return false;
+}
+
+function getIndexOfStopCodeInArray(array, stopcode){
+	for (var i = 0; i < array.length; i++){
+	    if (stopcode === array[i].stopcode){
+            return i;
+        }		
+	}
+	return -1;
 }
 
 function distance(lat1, lon1, lat2, lon2) {
