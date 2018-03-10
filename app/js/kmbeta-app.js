@@ -158,7 +158,7 @@ function getStopSeq(route, bound, stopcode){
 	}
 	
 	console.log(stopcode);
-	var stops = db[index].bounds[bound - 1].stops;
+	var stops = db[index].bounds[bound].stops;
 	for (var i = 0; i < stops.length; i++){
 	    console.log(i + ": " + stops[i].stopcode + " compare " + stopcode + ": " + (stops[i].stopcode == stopcode));
 		if (stops[i].stopcode == stopcode){
@@ -213,7 +213,7 @@ function selectRoute(route, bound, stopcode){
 	var stopseq = getStopSeq(route, bound, stopcode);
 	console.log(stopseq);
 	
-    buildRouteLinesAndMarkers(i, selectedBound - 1, stopseq);	
+    buildRouteLinesAndMarkers(i, selectedBound, stopseq);	
 }
 
 function deselectRoute(){
