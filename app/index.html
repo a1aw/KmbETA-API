@@ -21,6 +21,11 @@
         height: 100%;
       }
 	  
+	  #toolbar {
+	      width: 100%;
+		  height: 10%;
+	  }
+	  
 	  #map {
 	     width: 100%;
 		 height: 100%;
@@ -36,8 +41,11 @@
 </head>
 
 <body>
+	<div id="toolbar">
+	    <button class="btn btn-default btn-block" style="width: 100%; height: 100%" onclick="alert('Hello');">Hello World!</button>
+	</div>
     <div class="container">
-	    <div id="map"></div>
+		<div id="map"></div>
     </div>
 	<!-- Home Modal-->
     <div class="modal fade" id="homeModal" tabindex="-1" role="dialog" aria-labelledby="homeModalLabel" aria-hidden="true">

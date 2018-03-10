@@ -29,6 +29,84 @@ var routeMarkers = [];
 var nearbyRoutes = [];
 var nearbyRoutesMgr = [];
 
+const MAX_TOOLBAR_HEIGHT = 10;
+
+function showToolbarAnimate(maxTime = 2000){
+	stepShowToolbar(0, maxTime);
+}
+
+function stepShowToolbar(percent, maxTime, finishHandler){
+	if (percent < 1){
+		//console.log("Step " + percent + " Maxtime: " + maxTime);
+		const sliceTime = maxTime / 100;
+		//console.log("Slicetime: " + sliceTime);
+		
+		$("#toolbar").css("height", MAX_TOOLBAR_HEIGHT * percent + "%");
+		$("#map").css("top", MAX_TOOLBAR_HEIGHT * percent + "%");
+	    $("#map").css("height", (100 - MAX_TOOLBAR_HEIGHT * percent) + "%");
+		//console.log("ToolbarHeight: " + MAX_TOOLBAR_HEIGHT * percent);
+		percent += sliceTime / maxTime;
+		//console.log("Percent: " + percent);
+		
+		//console.log("Enter wait: " + sliceTime);
+		setTimeout(function(){
+			stepShowToolbar(percent, maxTime, finishHandler);
+		}, sliceTime);
+	} else {
+		if (finishHandler){
+		    finishHandler();
+		}
+		console.log("Done");
+	    $("#map").css("height", (100 - MAX_TOOLBAR_HEIGHT) + "%");
+		$("#toolbar").css("height", MAX_TOOLBAR_HEIGHT + "%");
+		$("#map").css("top", MAX_TOOLBAR_HEIGHT + "%");
+	}
+}
+
+function hideToolbarAnimate(maxTime = 2000){
+	stepHideToolbar(1, maxTime);
+}
+
+function stepHideToolbar(percent, maxTime, finishHandler){
+	if (percent > 0){
+		//console.log("Step " + percent + " Maxtime: " + maxTime);
+		const sliceTime = maxTime / 100;
+		//console.log("Slicetime: " + sliceTime);
+		
+		$("#toolbar").css("height", MAX_TOOLBAR_HEIGHT * percent + "%");
+		$("#map").css("top", MAX_TOOLBAR_HEIGHT * percent + "%");
+	    $("#map").css("height", (100 - MAX_TOOLBAR_HEIGHT * percent) + "%");
+		//console.log("ToolbarHeight: " + MAX_TOOLBAR_HEIGHT * percent);
+		percent -= sliceTime / maxTime;
+		//console.log("Percent: " + percent);
+		
+		//console.log("Enter wait: " + sliceTime);
+		setTimeout(function(){
+			stepHideToolbar(percent, maxTime);
+		}, sliceTime);
+	} else {
+		if (finishHandler){
+		    finishHandler();
+		}
+		console.log("Done");
+	    $("#map").css("height", "100%");
+		$("#toolbar").css("height", "0%");
+		$("#map").css("top", "0%");
+	}
+}
+
+function showToolbar(){
+	$("#map").css("height", "90%");
+	$("#map").css("top", "10%");
+	$("#toolbar").css("height", "10%");
+}
+
+function hideToolbar(){
+	$("#map").css("height", "100%");
+	$("#map").css("top", "0%");
+	$("#toolbar").css("height", "0%");
+}
+
 function initMap(){
 	map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 22.25, lng: 114.1667},
@@ -213,6 +291,7 @@ function selectRoute(route, bound, stopcode){
 	var stopseq = getStopSeq(route, bound, stopcode);
 	console.log(stopseq);
 	
+	showToolbarAnimate(250);
     buildRouteLinesAndMarkers(i, selectedBound, stopseq);	
 }
 
@@ -222,6 +301,7 @@ function deselectRoute(){
 	selectedStop = null;
 	recenterMarkers();
 	
+	hideToolbarAnimate(250);
 	$("#homeModal").modal({backdrop: 'static', keyboard: false});
 }
 
