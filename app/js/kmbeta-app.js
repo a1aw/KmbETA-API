@@ -8,15 +8,55 @@ $(document).ready(function(){
 		selectRoute(val, 1, null);
 		$("#homeModal").modal("hide");
 	});
+	
+	$("#findNearbyStopsBtn").click(function(){
+		$("#homeModal").modal("hide");
+		
+		currCenterChgListener = map.addListener('center_changed', function(){
+            removeAllListRoutes();
+			
+			clearTimeout(onLocChgTimeoutId);
+			onLocChgTimeoutId = setTimeout(function(){
+				onLocChg();
+			}, 1000);
+		});
+	});
+	
+	$("#useCustomLocationBtn").click(function(){
+		if (!confirm("This will stop tracking your current position.\nAre you sure?")){
+			return;
+		}
+		$("#homeModal").modal("hide");
+		navigator.geolocation.clearWatch(currLocWatchId);
+		
+		currCenterChgListener = map.addListener('center_changed', function(){
+			currLocMarker.setPosition(map.getCenter());
+		});
+		
+		mapClickListener = map.addListener('click', function(){
+			$("#homeModal").modal({backdrop: 'static', keyboard: false});
+			
+			google.maps.event.removeListener(mapClickListener);
+			google.maps.event.removeListener(currCenterChgListener);
+			
+			onLocChg();
+		});
+		
+	});
 });
 
+var onLocChgTimeoutId;
 var locAccessCheckTimerId;
 var currLocUptTimerId;
+var currLocWatchId;
 var nearbyRoutesEtaUiUpdateTimerId;
 var currLocMarker;
 var map;
 var kmbDb;
 var currPos;
+
+var currCenterChgListener;
+var mapClickListener;
 
 var selectedRoute;
 var selectedBound;
@@ -141,7 +181,12 @@ function initMap(){
 			//	recenterMarkers();
 			//});
 			
-			currLocUptTimerId = setInterval(function(){uptCurrLocMarker()}, 1000);
+			currLocWatchId = navigator.geolocation.watchPosition(posChgSuccess, posChgError, {
+			    enableHighAccuracy: false,
+				timeout: 5000,
+				maximumAge: 0
+			});
+			//currLocUptTimerId = setInterval(function(){uptCurrLocMarker()}, 1000);
 			
 			kmbEtaLoadDb();
 		}, function(){
@@ -180,6 +225,12 @@ function kmbEtaLoadDb(){
 		
 		updateNearbyStops();
 	});
+}
+
+function onLocChg(){
+    removeAllListRoutes();
+	recenterMarkers();
+	updateNearbyStops();
 }
 
 function updateNearbyStops(){
@@ -277,6 +328,8 @@ function recenterMarkers(){
 }
 
 function selectRoute(route, bound, stopcode){
+	google.maps.event.removeListener(currCenterChgListener);
+	
 	selectedRoute = route;
 	selectedStop = stopcode;
 	selectedBound = bound;
@@ -646,6 +699,33 @@ function checkLocAccessPerm(){
 	}, function(){});
 }
 
+function posChgSuccess(position){
+	var pos = {
+		lat: position.coords.latitude,
+		lng: position.coords.longitude
+	};
+	currPos = pos;
+	currLocMarker.setPosition(pos);
+}
+
+function posChgError(err){
+	if (err.code == 3){
+		if (confirm("The device does not return a new location to the application.\nYour location isn't updated. Are you still want to continue?")){
+			return;
+		}
+	}
+    navigator.geolocation.clearWatch(currLocWatchId);
+	console.log("=================================");
+	console.log("Error stacktrace object:");
+	console.log(err);
+	console.log("=================================");
+	alert("Error occurred while watching the position:\n\n" + err + "\n\nThe application is now aborted.");
+	$("#waitMapModal").modal('hide');
+	$("#noMapModal").modal({backdrop: 'static', keyboard: false});
+}
+
+//Deprecated
+/*
 function uptCurrLocMarker(){
 	navigator.geolocation.getCurrentPosition(function(position){
 		var pos = {
@@ -660,3 +740,4 @@ function uptCurrLocMarker(){
 	    $("#noMapModal").modal({backdrop: 'static', keyboard: false});
 	});
 }
+*/
