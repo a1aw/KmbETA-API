@@ -1,12 +1,16 @@
-# KmbETA-API [![Build Status](https://travis-ci.org/mob41/KmbETA-API.svg?branch=master)](https://travis-ci.org/mob41/KmbETA-API) [![Download KmbETA-API](https://img.shields.io/sourceforge/dt/kmbeta-api.svg)](https://sourceforge.net/projects/kmbeta-api/files/latest/download)
-
->:information_source: The domain ```db.kmbeta.ml``` and ```kmbeta.ml``` is back right now.
+# KmbETA-API [![Build Status](https://travis-ci.org/mob41/KmbETA-API.svg?branch=master)](https://travis-ci.org/mob41/KmbETA-API)
 
 An API client for getting KMB bus's ETA.
 
-[![Download KmbETA-API](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/kmbeta-api/files/latest/download)
-
 JavaDoc: [http://mob41.github.io/KmbETA-API](http://mob41.github.io/KmbETA-API)
+
+# No longer maintained
+
+This project is abandoned and outdated because I have focused on developing it on GoToWhere platform. The latest API implementation is in JavaScript, and at the GoToWhere plugins repository: [gtwp-kmb](https://github.com/mob41/gotowhere-plugins/tree/master/repos/gtwp-kmb)
+
+The current Java code current should still work. Unless there is serious changes that need to be made, I will not update the code because I don't have time.
+
+Database builder and KMB database will still keep updated for using in GTW.
 
 # License
 
